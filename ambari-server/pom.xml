@@ -1689,6 +1689,11 @@
       <version>4.2.2</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.directory.api</groupId>
+      <artifactId>api-all</artifactId>
+      <version>${ldap-api.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.networknt</groupId>
       <artifactId>json-schema-validator</artifactId>
       <version>0.1.10</version>
