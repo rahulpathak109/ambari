@@ -18,8 +18,8 @@ package org.apache.ambari.server.ldap;
 import org.apache.ambari.server.ldap.service.AmbariLdapFacade;
 import org.apache.ambari.server.ldap.service.LdapConnectionService;
 import org.apache.ambari.server.ldap.service.LdapFacade;
-import org.apache.ambari.server.ldap.service.ad.DefaultLdapConfigurationValidatorService;
-import org.apache.ambari.server.ldap.service.ad.DefaultLdapConnectionService;
+import org.apache.ambari.server.ldap.service.ads.DefaultLdapConfigurationValidatorService;
+import org.apache.ambari.server.ldap.service.ads.DefaultLdapConnectionService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;

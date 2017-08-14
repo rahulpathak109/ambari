@@ -34,6 +34,7 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -70,8 +71,9 @@ public class LdapRestService extends BaseService {
 
   @POST
   @ApiIgnore // until documented
-  @Path("/action") // todo this needs to be moved under the resource
+  @Path("/validate") // todo this needs to be moved under the resource
   @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
   public Response validateConfiguration(LdapCheckConfigurationRequest ldapCheckConfigurationRequest) {
 
     Set<String> groups = Sets.newHashSet();
@@ -95,10 +97,7 @@ public class LdapRestService extends BaseService {
 
           LOGGER.info("Testing LDAP attributes ....");
           groups = ldapFacade.checkLdapAttibutes(ldapCheckConfigurationRequest.getRequestInfo().getParameters(), ambariLdapConfiguration);
-          // todo factor out the resource creation, design better the structure in the response
-          Resource resource = new ResourceImpl(Resource.Type.AmbariConfiguration);
-          resource.setProperty("groups", groups);
-          result.getResultTree().addChild(resource, "payload");
+          setResult(groups, result);
 
           break;
         case "detect-attributes":
@@ -117,6 +116,12 @@ public class LdapRestService extends BaseService {
     }
 
     return Response.status(result.getStatus().getStatusCode()).entity(getResultSerializer().serialize(result)).build();
+  }
+
+  private void setResult(Set<String> groups, Result result) {
+    Resource resource = new ResourceImpl(Resource.Type.AmbariConfiguration);
+    resource.setProperty("groups", groups);
+    result.getResultTree().addChild(resource, "payload");
   }
 
   private void validateRequest(LdapCheckConfigurationRequest ldapCheckConfigurationRequest) {

@@ -63,7 +63,7 @@ import io.swagger.annotations.ApiResponses;
  *     }
  * </pre>
  */
-@Path("/configurations/")
+@Path("/ambariconfigs/")
 @Api(value = "Ambari Configurations", description = "Endpoint for Ambari configuration related operations")
 public class AmbariConfigurationService extends BaseService {
 

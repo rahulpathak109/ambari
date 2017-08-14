@@ -37,11 +37,12 @@ public class AmbariLdapConfiguration {
   public enum LdapConfigProperty {
     LDAP_CONFIGURED("ambari.ldap.configured"),
     AUTOMATIC_ATTRIBUTE_DETECTION("ambari.ldap.automatic.attribute.detection"),
-
     USE_SSL("ambari.ldap.usessl"),
     LDAP_SERVER_HOST("ambari.ldap.server.host"),
     LDAP_SERVER_PORT("ambari.ldap.server.port"),
-    BASE_DN("ambari.ldap.base.dn"),
+    LDAP_TRUSTSTORE_TYPE("ambari.ldap.truststore.type"),
+    LDAP_TRUSTSTORE_PATH("ambari.ldap.truststore.path"),
+    BASE_DN("ambari.ldap.bind.dn"),
 
     BIND_ANONIMOUSLY("ambari.ldap.bindanonymously"),
     MANAGER_DN("ambari.ldap.managerdn"),

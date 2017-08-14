@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.apache.ambari.server.ldap.service.ad;
+package org.apache.ambari.server.ldap.service.ads;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -21,13 +21,13 @@ import java.util.Map;
 import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
 import org.apache.ambari.server.ldap.LdapConfigurationValidatorService;
 import org.apache.ambari.server.ldap.service.LdapConnectionService;
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

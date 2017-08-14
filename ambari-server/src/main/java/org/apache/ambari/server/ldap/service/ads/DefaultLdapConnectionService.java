@@ -26,7 +26,7 @@
  * limitations under the License.
  */
 
-package org.apache.ambari.server.ldap.service.ad;
+package org.apache.ambari.server.ldap.service.ads;
 
 import javax.inject.Singleton;
 

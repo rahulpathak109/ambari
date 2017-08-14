@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.apache.ambari.server.ldap.service.ad;
+package org.apache.ambari.server.ldap.service.ads;
 
 import java.io.IOException;
 import java.util.List;
@@ -27,6 +27,7 @@ import org.apache.ambari.server.ldap.LdapConfigurationValidatorService;
 import org.apache.ambari.server.ldap.service.AmbariLdapException;
 import org.apache.ambari.server.ldap.service.LdapConnectionService;
 import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -38,7 +39,6 @@ import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.search.FilterBuilder;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
