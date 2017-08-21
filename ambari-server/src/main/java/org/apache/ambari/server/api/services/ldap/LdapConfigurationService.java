@@ -40,7 +40,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.ambari.annotations.ApiIgnore;
 import org.apache.ambari.server.StaticallyInject;
-import org.apache.ambari.server.api.services.BaseService;
+import org.apache.ambari.server.api.services.AmbariConfigurationService;
 import org.apache.ambari.server.api.services.Result;
 import org.apache.ambari.server.api.services.ResultImpl;
 import org.apache.ambari.server.api.services.ResultStatus;
@@ -49,8 +49,13 @@ import org.apache.ambari.server.controller.spi.Resource;
 import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
 import org.apache.ambari.server.ldap.LdapConfigurationFactory;
 import org.apache.ambari.server.ldap.service.LdapFacade;
+import org.apache.ambari.server.security.authorization.AuthorizationException;
+import org.apache.ambari.server.security.authorization.AuthorizationHelper;
+import org.apache.ambari.server.security.authorization.ResourceType;
+import org.apache.ambari.server.security.authorization.RoleAuthorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
 
 import com.google.common.collect.Sets;
 
@@ -58,10 +63,10 @@ import com.google.common.collect.Sets;
  * Endpoint designated to LDAP specific operations.
  */
 @StaticallyInject
-@Path("/ldap")
-public class LdapRestService extends BaseService {
+@Path("/ldapconfigs/")
+public class LdapConfigurationService extends AmbariConfigurationService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(LdapRestService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(LdapConfigurationService.class);
 
   @Inject
   private static LdapFacade ldapFacade;
@@ -69,12 +74,42 @@ public class LdapRestService extends BaseService {
   @Inject
   private static LdapConfigurationFactory ldapConfigurationFactory;
 
+  /**
+   * Actions supported by this endpoint
+   */
+  private enum LdapAction {
+    TEST_CONNECTION("test-connection"),
+    TEST_ATTRIBUTES("test-attributes"),
+    DETECT_ATTRIBUTES("detect-attributes");
+
+    private String actionStr;
+
+    LdapAction(String actionStr) {
+      this.actionStr = actionStr;
+    }
+
+    public static LdapAction fromAction(String action) {
+      for (LdapAction val : LdapAction.values()) {
+        if (val.action().equals(action)) {
+          return val;
+        }
+      }
+      throw new IllegalStateException("Action [ " + action + " ] is not supported");
+    }
+
+    public String action() {
+      return this.actionStr;
+    }
+  }
+
   @POST
   @ApiIgnore // until documented
-  @Path("/validate") // todo this needs to be moved under the resource
+  @Path("/validate")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   public Response validateConfiguration(LdapCheckConfigurationRequest ldapCheckConfigurationRequest) {
+
+    authorize();
 
     Set<String> groups = Sets.newHashSet();
 
@@ -86,21 +121,23 @@ public class LdapRestService extends BaseService {
       AmbariLdapConfiguration ambariLdapConfiguration = ldapConfigurationFactory.createLdapConfiguration(
         ldapCheckConfigurationRequest.getAmbariConfiguration().getData().iterator().next());
 
-      switch (ldapCheckConfigurationRequest.getRequestInfo().getAction()) {
-        case "test-connection":
+      LdapAction action = LdapAction.fromAction(ldapCheckConfigurationRequest.getRequestInfo().getAction());
+      switch (action) {
+
+        case TEST_CONNECTION:
 
           LOGGER.info("Testing connection to the LDAP server ...");
           ldapFacade.checkConnection(ambariLdapConfiguration);
 
           break;
-        case "test-attributes":
+        case TEST_ATTRIBUTES:
 
           LOGGER.info("Testing LDAP attributes ....");
           groups = ldapFacade.checkLdapAttibutes(ldapCheckConfigurationRequest.getRequestInfo().getParameters(), ambariLdapConfiguration);
           setResult(groups, result);
 
           break;
-        case "detect-attributes":
+        case DETECT_ATTRIBUTES:
 
           LOGGER.info("Detecting LDAP attributes ...");
           ldapFacade.detectAttributes(ambariLdapConfiguration);
@@ -145,5 +182,27 @@ public class LdapRestService extends BaseService {
       LOGGER.error(errMsg);
       throw new IllegalArgumentException(errMsg);
     }
+  }
+
+  private void authorize() {
+    try {
+      Authentication authentication = AuthorizationHelper.getAuthentication();
+
+      if (authentication == null || !authentication.isAuthenticated()) {
+        throw new AuthorizationException("Authentication data is not available, authorization to perform the requested operation is not granted");
+      }
+
+      if (!AuthorizationHelper.isAuthorized(authentication, ResourceType.AMBARI, null, requiredAuthorizations())) {
+        throw new AuthorizationException("The authenticated user does not have the appropriate authorizations to create the requested resource(s)");
+      }
+    } catch (AuthorizationException e) {
+      LOGGER.error("Unauthorized operation.", e);
+      throw new IllegalArgumentException("User is not authorized to perform the operation", e);
+    }
+
+  }
+
+  Set<RoleAuthorization> requiredAuthorizations() {
+    return Sets.newHashSet(RoleAuthorization.AMBARI_MANAGE_CONFIGURATION);
   }
 }
