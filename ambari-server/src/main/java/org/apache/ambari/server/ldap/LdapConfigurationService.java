@@ -24,7 +24,7 @@ import org.apache.directory.ldap.client.api.LdapConnection;
  * Collection of operations for validating ldap configuration.
  * It's intended to decouple implementations using different libraries.
  */
-public interface LdapConfigurationValidatorService {
+public interface LdapConfigurationService {
 
   /**
    * Tests the connection based on the provided configuration.

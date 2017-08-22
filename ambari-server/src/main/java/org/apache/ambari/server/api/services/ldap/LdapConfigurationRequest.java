@@ -17,23 +17,25 @@ package org.apache.ambari.server.api.services.ldap;
 
 import com.google.gson.annotations.SerializedName;
 
-public class LdapCheckConfigurationRequest implements LdapOperationRequest {
+/**
+ * Request object wrapping information for LDAP configuration related request calls.
+ */
+public class LdapConfigurationRequest {
 
   @SerializedName("AmbariConfiguration")
-  private AmbariConfigurationDTO ambariConfiguration;
+  private AmbariConfiguration ambariConfiguration;
 
   @SerializedName("RequestInfo")
   private LdapRequestInfo requestInfo;
 
-  public LdapCheckConfigurationRequest() {
+  public LdapConfigurationRequest() {
   }
 
-
-  public AmbariConfigurationDTO getAmbariConfiguration() {
+  public AmbariConfiguration getAmbariConfiguration() {
     return ambariConfiguration;
   }
 
-  public void setAmbariConfiguration(AmbariConfigurationDTO ambariConfiguration) {
+  public void setAmbariConfiguration(AmbariConfiguration ambariConfiguration) {
     this.ambariConfiguration = ambariConfiguration;
   }
 

@@ -46,11 +46,11 @@ public class LDAPServiceTest {
 
 
     // WHEN
-    LdapCheckConfigurationRequest ldapCheckConfigurationRequest = gsonJsonProvider.fromJson(JSON_STRING, LdapCheckConfigurationRequest.class);
-    // LdapCheckConfigurationRequest ldapCheckConfigurationRequest = objectMapper.readValue(JSON_STRING, LdapCheckConfigurationRequest.class);
+    LdapConfigurationRequest ldapConfigurationRequest = gsonJsonProvider.fromJson(JSON_STRING, LdapConfigurationRequest.class);
+    // LdapConfigurationRequest ldapConfigurationRequest = objectMapper.readValue(JSON_STRING, LdapConfigurationRequest.class);
 
     // THEN
-    Assert.assertNotNull(ldapCheckConfigurationRequest);
+    Assert.assertNotNull(ldapConfigurationRequest);
 
   }
 

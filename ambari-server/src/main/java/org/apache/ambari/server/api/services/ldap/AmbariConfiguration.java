@@ -18,12 +18,32 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-public class AmbariConfigurationDTO {
+/**
+ * Domain POJO representing generic ambari configuration data.
+ */
+public class AmbariConfiguration {
+
+  /**
+   * The type of the configuration,  eg.: ldap-configuration
+   */
   private String type;
-  private Set<Map<String, Object>> data = Collections.emptySet();
+
+  /**
+   * Version tag
+   */
   private String versionTag;
+
+  /**
+   * Version number
+   */
   private Integer version;
+
+  /**
+   * Created timestamp
+   */
   private long createdTs;
+
+  private Set<Map<String, Object>> data = Collections.emptySet();
 
   public String getType() {
     return type;

@@ -19,7 +19,7 @@ import static org.junit.Assert.assertNotNull;
 import java.util.Map;
 
 import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
-import org.apache.ambari.server.ldap.LdapConfigurationValidatorService;
+import org.apache.ambari.server.ldap.LdapConfigurationService;
 import org.apache.ambari.server.ldap.service.LdapConnectionService;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
@@ -34,11 +34,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
-public class DefaultLdapConfigurationValidatorServiceTest {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLdapConfigurationValidatorService.class);
+public class DefaultLdapConfigurationServiceTest {
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLdapConfigurationService.class);
   private static final String TEST_USER = "einstein";
 
-  LdapConfigurationValidatorService ldapConfigurationValidatorService = new DefaultLdapConfigurationValidatorService();
+  LdapConfigurationService ldapConfigurationService = new DefaultLdapConfigurationService();
 
 
   @Test
@@ -84,7 +84,7 @@ public class DefaultLdapConfigurationValidatorServiceTest {
     LdapConnectionService connectionService = new DefaultLdapConnectionService();
     LdapNetworkConnection ldapConnection = connectionService.createLdapConnection(ambariLdapConfiguration);
 
-    ldapConfigurationValidatorService.checkUserAttributes(ldapConnection, "einstein", "", ambariLdapConfiguration);
+    ldapConfigurationService.checkUserAttributes(ldapConnection, "einstein", "", ambariLdapConfiguration);
   }
 
   @Test
@@ -108,6 +108,6 @@ public class DefaultLdapConfigurationValidatorServiceTest {
     LdapConnectionService connectionService = new DefaultLdapConnectionService();
     LdapNetworkConnection ldapConnection = connectionService.createLdapConnection(ambariLdapConfiguration);
 
-    ldapConfigurationValidatorService.checkGroupAttributes(ldapConnection, "uid=einstein,dc=example,dc=com", ambariLdapConfiguration);
+    ldapConfigurationService.checkGroupAttributes(ldapConnection, "uid=einstein,dc=example,dc=com", ambariLdapConfiguration);
   }
 }

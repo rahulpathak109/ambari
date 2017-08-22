@@ -23,7 +23,7 @@ import javax.inject.Singleton;
 
 import org.apache.ambari.server.AmbariException;
 import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
-import org.apache.ambari.server.ldap.LdapConfigurationValidatorService;
+import org.apache.ambari.server.ldap.LdapConfigurationService;
 import org.apache.ambari.server.ldap.service.AmbariLdapException;
 import org.apache.ambari.server.ldap.service.LdapConnectionService;
 import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;
@@ -49,9 +49,9 @@ import com.google.common.collect.Sets;
  * Implementation of the validation logic using the Apache Directory API.
  */
 @Singleton
-public class DefaultLdapConfigurationValidatorService implements LdapConfigurationValidatorService {
+public class DefaultLdapConfigurationService implements LdapConfigurationService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLdapConfigurationValidatorService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLdapConfigurationService.class);
 
   @Inject
   private LdapConnectionService ldapConnectionService;
@@ -60,7 +60,7 @@ public class DefaultLdapConfigurationValidatorService implements LdapConfigurati
    * Facilitating the instantiation
    */
   @Inject
-  public DefaultLdapConfigurationValidatorService() {
+  public DefaultLdapConfigurationService() {
   }
 
   @Override

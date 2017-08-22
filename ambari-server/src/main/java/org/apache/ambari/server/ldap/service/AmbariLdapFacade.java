@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
-import org.apache.ambari.server.ldap.LdapConfigurationValidatorService;
+import org.apache.ambari.server.ldap.LdapConfigurationService;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +49,7 @@ public class AmbariLdapFacade implements LdapFacade {
   }
 
   @Inject
-  private LdapConfigurationValidatorService ldapConfigurationValidatorService;
+  private LdapConfigurationService ldapConfigurationService;
 
   @Inject
   private LdapConnectionService ldapConnectionService;
@@ -63,7 +63,7 @@ public class AmbariLdapFacade implements LdapFacade {
     try {
       LOGGER.info("Validating LDAP connection related configuration based on: {}", ambariLdapConfiguration);
       LdapConnection connection = ldapConnectionService.createLdapConnection(ambariLdapConfiguration);
-      ldapConfigurationValidatorService.checkConnection(connection, ambariLdapConfiguration);
+      ldapConfigurationService.checkConnection(connection, ambariLdapConfiguration);
     } catch (AmbariLdapException e) {
       LOGGER.error("Validating LDAP connection configuration failed", e);
       throw e;
@@ -90,10 +90,10 @@ public class AmbariLdapFacade implements LdapFacade {
     LdapConnection ldapConnection = ldapConnectionService.createLdapConnection(ldapConfiguration);
 
     LOGGER.info("Testing LDAP user attributes with test user: {}", userName);
-    String userDn = ldapConfigurationValidatorService.checkUserAttributes(ldapConnection, userName, testUserPass, ldapConfiguration);
+    String userDn = ldapConfigurationService.checkUserAttributes(ldapConnection, userName, testUserPass, ldapConfiguration);
 
     LOGGER.info("Testing LDAP group attributes with test user dn: {}", userDn);
-    Set<String> groups = ldapConfigurationValidatorService.checkGroupAttributes(ldapConnection, userDn, ldapConfiguration);
+    Set<String> groups = ldapConfigurationService.checkGroupAttributes(ldapConnection, userDn, ldapConfiguration);
 
     return groups;
   }

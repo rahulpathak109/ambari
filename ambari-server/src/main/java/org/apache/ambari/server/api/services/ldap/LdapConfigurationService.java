@@ -74,40 +74,13 @@ public class LdapConfigurationService extends AmbariConfigurationService {
   @Inject
   private static LdapConfigurationFactory ldapConfigurationFactory;
 
-  /**
-   * Actions supported by this endpoint
-   */
-  private enum LdapAction {
-    TEST_CONNECTION("test-connection"),
-    TEST_ATTRIBUTES("test-attributes"),
-    DETECT_ATTRIBUTES("detect-attributes");
-
-    private String actionStr;
-
-    LdapAction(String actionStr) {
-      this.actionStr = actionStr;
-    }
-
-    public static LdapAction fromAction(String action) {
-      for (LdapAction val : LdapAction.values()) {
-        if (val.action().equals(action)) {
-          return val;
-        }
-      }
-      throw new IllegalStateException("Action [ " + action + " ] is not supported");
-    }
-
-    public String action() {
-      return this.actionStr;
-    }
-  }
 
   @POST
   @ApiIgnore // until documented
   @Path("/validate")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
-  public Response validateConfiguration(LdapCheckConfigurationRequest ldapCheckConfigurationRequest) {
+  public Response validateConfiguration(LdapConfigurationRequest ldapConfigurationRequest) {
 
     authorize();
 
@@ -116,12 +89,12 @@ public class LdapConfigurationService extends AmbariConfigurationService {
     Result result = new ResultImpl(new ResultStatus(ResultStatus.STATUS.OK));
     try {
 
-      validateRequest(ldapCheckConfigurationRequest);
+      validateRequest(ldapConfigurationRequest);
 
       AmbariLdapConfiguration ambariLdapConfiguration = ldapConfigurationFactory.createLdapConfiguration(
-        ldapCheckConfigurationRequest.getAmbariConfiguration().getData().iterator().next());
+        ldapConfigurationRequest.getAmbariConfiguration().getData().iterator().next());
 
-      LdapAction action = LdapAction.fromAction(ldapCheckConfigurationRequest.getRequestInfo().getAction());
+      LdapConfigOperation action = LdapConfigOperation.fromAction(ldapConfigurationRequest.getRequestInfo().getAction());
       switch (action) {
 
         case TEST_CONNECTION:
@@ -133,7 +106,7 @@ public class LdapConfigurationService extends AmbariConfigurationService {
         case TEST_ATTRIBUTES:
 
           LOGGER.info("Testing LDAP attributes ....");
-          groups = ldapFacade.checkLdapAttibutes(ldapCheckConfigurationRequest.getRequestInfo().getParameters(), ambariLdapConfiguration);
+          groups = ldapFacade.checkLdapAttibutes(ldapConfigurationRequest.getRequestInfo().getParameters(), ambariLdapConfiguration);
           setResult(groups, result);
 
           break;
@@ -161,24 +134,24 @@ public class LdapConfigurationService extends AmbariConfigurationService {
     result.getResultTree().addChild(resource, "payload");
   }
 
-  private void validateRequest(LdapCheckConfigurationRequest ldapCheckConfigurationRequest) {
+  private void validateRequest(LdapConfigurationRequest ldapConfigurationRequest) {
     String errMsg;
 
-    if (null == ldapCheckConfigurationRequest) {
+    if (null == ldapConfigurationRequest) {
       errMsg = "No ldap configuraiton request provided";
       LOGGER.error(errMsg);
       throw new IllegalArgumentException(errMsg);
     }
 
-    if (null == ldapCheckConfigurationRequest.getRequestInfo()) {
-      errMsg = String.format("No request information provided. Request: [%s]", ldapCheckConfigurationRequest);
+    if (null == ldapConfigurationRequest.getRequestInfo()) {
+      errMsg = String.format("No request information provided. Request: [%s]", ldapConfigurationRequest);
       LOGGER.error(errMsg);
       throw new IllegalArgumentException(errMsg);
     }
 
-    if (null == ldapCheckConfigurationRequest.getAmbariConfiguration()
-      || ldapCheckConfigurationRequest.getAmbariConfiguration().getData().size() != 1) {
-      errMsg = String.format("No / Invalid configuration data provided. Request: [%s]", ldapCheckConfigurationRequest);
+    if (null == ldapConfigurationRequest.getAmbariConfiguration()
+      || ldapConfigurationRequest.getAmbariConfiguration().getData().size() != 1) {
+      errMsg = String.format("No / Invalid configuration data provided. Request: [%s]", ldapConfigurationRequest);
       LOGGER.error(errMsg);
       throw new IllegalArgumentException(errMsg);
     }
@@ -202,7 +175,7 @@ public class LdapConfigurationService extends AmbariConfigurationService {
 
   }
 
-  Set<RoleAuthorization> requiredAuthorizations() {
+  private Set<RoleAuthorization> requiredAuthorizations() {
     return Sets.newHashSet(RoleAuthorization.AMBARI_MANAGE_CONFIGURATION);
   }
 }
