@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
@@ -54,6 +55,10 @@ public class AmbariLdapFacade implements LdapFacade {
   @Inject
   private LdapConnectionService ldapConnectionService;
 
+  //todo remove this, added for testing purposes only
+  @Inject
+  private Provider<AmbariLdapConfiguration> ambariLdapConfigurationProvider;
+
   @Inject
   public AmbariLdapFacade() {
   }
@@ -75,7 +80,7 @@ public class AmbariLdapFacade implements LdapFacade {
   @Override
   public void detectAttributes(AmbariLdapConfiguration ambariLdapConfiguration) {
     LOGGER.info("Detecting LDAP configuration attributes ...");
-    throw new UnsupportedOperationException("Not yet implemented");
+    LOGGER.info("LDAP config: {}", ambariLdapConfigurationProvider.get());
   }
 
   @Override

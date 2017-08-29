@@ -12,10 +12,26 @@
  * limitations under the License.
  */
 
-package org.apache.ambari.server.ldap;
+package org.apache.ambari.server.events;
 
-import java.util.Map;
+/**
+ * Event signaling the creation or changing of an LDAP configuration entry.
+ */
+public class AmbariLdapConfigChangedEvent extends AmbariEvent {
 
-public interface LdapConfigurationFactory {
-  AmbariLdapConfiguration createLdapConfiguration(Map<String, Object> configuration);
+  private Long configurationId;
+
+  /**
+   * Constructor.
+   *
+   * @param eventType the type of event (not {@code null}).
+   */
+  public AmbariLdapConfigChangedEvent(AmbariEventType eventType, Long configurationId) {
+    super(eventType);
+    this.configurationId = configurationId;
+  }
+
+  public Long getConfigurationId() {
+    return configurationId;
+  }
 }

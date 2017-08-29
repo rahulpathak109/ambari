@@ -28,6 +28,7 @@ import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.search.FilterBuilder;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,15 +47,18 @@ public class DefaultLdapConfigurationServiceTest {
 
     // WHEN
     LdapConnectionConfig config = new LdapConnectionConfig();
-    config.setLdapHost("localhost");
+    config.setLdapHost("172.22.112.167");
     config.setLdapPort(389);
     LdapConnection connection = new LdapNetworkConnection(config);
 
     // THEN
-    connection.anonymousBind();
+    connection.bind("CN=Robert Levas,CN=Users,DC=HWQE,DC=HORTONWORKS,DC=COM", "Hadoop1234");
 
+    String filter = FilterBuilder.and(
+      FilterBuilder.equal(SchemaConstants.OBJECT_CLASS_AT, "person"),
+      FilterBuilder.equal("name", "User1 Levas")).toString();
 
-    EntryCursor cursor = connection.search("dc=dev,dc=local", "(objectclass=*)", SearchScope.ONELEVEL);
+    EntryCursor cursor = connection.search("OU=levas,DC=hwqe,DC=hortonworks,DC=com", filter, SearchScope.SUBTREE);
 
     for (Entry entry : cursor) {
       assertNotNull(entry);

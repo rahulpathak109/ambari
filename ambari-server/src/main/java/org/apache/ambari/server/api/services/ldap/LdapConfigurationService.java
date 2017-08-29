@@ -82,6 +82,7 @@ public class LdapConfigurationService extends AmbariConfigurationService {
   @Produces(MediaType.APPLICATION_JSON)
   public Response validateConfiguration(LdapConfigurationRequest ldapConfigurationRequest) {
 
+    // check if the user is authorized to perform the operation
     authorize();
 
     Set<String> groups = Sets.newHashSet();

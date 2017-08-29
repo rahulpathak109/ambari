@@ -15,6 +15,7 @@
 
 package org.apache.ambari.server.ldap;
 
+import org.apache.ambari.server.ldap.service.AmbariLdapConfigurationProvider;
 import org.apache.ambari.server.ldap.service.AmbariLdapFacade;
 import org.apache.ambari.server.ldap.service.LdapConnectionService;
 import org.apache.ambari.server.ldap.service.LdapFacade;
@@ -34,6 +35,8 @@ public class LdapModule extends AbstractModule {
     bind(LdapFacade.class).to(AmbariLdapFacade.class);
     bind(LdapConfigurationService.class).to(DefaultLdapConfigurationService.class);
     bind(LdapConnectionService.class).to(DefaultLdapConnectionService.class);
+
+    bind(AmbariLdapConfiguration.class).toProvider(AmbariLdapConfigurationProvider.class);
 
     install(new FactoryModuleBuilder().build(LdapConfigurationFactory.class));
   }

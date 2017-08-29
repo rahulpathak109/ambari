@@ -35,6 +35,9 @@ import org.apache.ambari.server.controller.spi.ResourceAlreadyExistsException;
 import org.apache.ambari.server.controller.spi.SystemException;
 import org.apache.ambari.server.controller.spi.UnsupportedPropertyException;
 import org.apache.ambari.server.controller.utilities.PredicateHelper;
+import org.apache.ambari.server.events.AmbariEvent;
+import org.apache.ambari.server.events.AmbariLdapConfigChangedEvent;
+import org.apache.ambari.server.events.publishers.AmbariEventPublisher;
 import org.apache.ambari.server.orm.dao.AmbariConfigurationDAO;
 import org.apache.ambari.server.orm.entities.AmbariConfigurationEntity;
 import org.apache.ambari.server.orm.entities.ConfigurationBaseEntity;
@@ -113,6 +116,10 @@ public class AmbariConfigurationResourceProvider extends AbstractAuthorizedResou
   @Inject
   private AmbariConfigurationDAO ambariConfigurationDAO;
 
+  @Inject
+  private AmbariEventPublisher publisher;
+
+
   private Gson gson;
 
   @AssistedInject
@@ -142,7 +149,18 @@ public class AmbariConfigurationResourceProvider extends AbstractAuthorizedResou
     }
 
     LOGGER.info("Persisting new ambari configuration: {} ", ambariConfigurationEntity);
-    ambariConfigurationDAO.create(ambariConfigurationEntity);
+
+    try {
+      ambariConfigurationDAO.create(ambariConfigurationEntity);
+    } catch (Exception e) {
+      LOGGER.error("Failed to create resource", e);
+      throw new ResourceAlreadyExistsException(e.getMessage());
+    }
+
+    // todo filter by configuration type
+    // notify subscribers about the configuration changes
+    publisher.publish(new AmbariLdapConfigChangedEvent(AmbariEvent.AmbariEventType.LDAP_CONFIG_CHANGED,
+      ambariConfigurationEntity.getId()));
 
     return getRequestStatus(null);
   }
@@ -183,6 +201,10 @@ public class AmbariConfigurationResourceProvider extends AbstractAuthorizedResou
 
     }
 
+    // notify subscribers about the configuration changes
+    publisher.publish(new AmbariLdapConfigChangedEvent(AmbariEvent.AmbariEventType.LDAP_CONFIG_CHANGED, idFromRequest));
+
+
     return getRequestStatus(null);
 
   }
@@ -209,10 +231,14 @@ public class AmbariConfigurationResourceProvider extends AbstractAuthorizedResou
       persistedEntity.getConfigurationBaseEntity().setConfigurationAttributes(entityFromRequest.getConfigurationBaseEntity().getConfigurationAttributes());
 
 
-      ambariConfigurationDAO.create(persistedEntity);
+      ambariConfigurationDAO.update(persistedEntity);
     } catch (AmbariException e) {
       throw new NoSuchParentResourceException(e.getMessage());
     }
+
+    publisher.publish(new AmbariLdapConfigChangedEvent(AmbariEvent.AmbariEventType.LDAP_CONFIG_CHANGED,
+      persistedEntity.getId()));
+
 
     return getRequestStatus(null);
 
@@ -249,6 +275,11 @@ public class AmbariConfigurationResourceProvider extends AbstractAuthorizedResou
 
     if (resourcePropertiesSet.size() != 1) {
       throw new AmbariException("There must be only one resource specified in the request");
+    }
+
+    // the configuration type must be set
+    if (getValueFromResourceProperties(ResourcePropertyId.TYPE, resourcePropertiesSet.iterator().next()) == null) {
+      throw new AmbariException("The configuration type must be set");
     }
 
 

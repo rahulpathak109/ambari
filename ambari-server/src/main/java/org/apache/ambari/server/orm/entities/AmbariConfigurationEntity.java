@@ -29,8 +29,8 @@ import javax.persistence.Table;
 @Table(name = "ambari_configuration")
 @NamedQueries({
   @NamedQuery(
-    name = "AmbariConfigurationEntity.findAll",
-    query = "select ace from AmbariConfigurationEntity ace")
+    name = "AmbariConfigurationEntity.findByType",
+    query = "select ace from AmbariConfigurationEntity ace where ace.configurationBaseEntity.type = :typeName")
 })
 
 public class AmbariConfigurationEntity {
