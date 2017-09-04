@@ -40,22 +40,35 @@ public class AmbariLdapConfiguration {
     USE_SSL("ambari.ldap.usessl"),
     LDAP_SERVER_HOST("ambari.ldap.server.host"),
     LDAP_SERVER_PORT("ambari.ldap.server.port"),
+    LDAP_TRUSTSTORE("ambari.ldap.truststore"),
     LDAP_TRUSTSTORE_TYPE("ambari.ldap.truststore.type"),
     LDAP_TRUSTSTORE_PATH("ambari.ldap.truststore.path"),
+    LDAP_TRUSTSTORE_PASSWORD("ambari.ldap.truststore.password"),
     BASE_DN("ambari.ldap.bind.dn"),
+    REFERRAL("ambari.ldap.referral"),
+    PAGINATION_ENABLED("ambari.ldap.pagination.enabled"),
 
     BIND_ANONIMOUSLY("ambari.ldap.bindanonymously"),
     MANAGER_DN("ambari.ldap.managerdn"),
     MANAGER_PASSWORD("ambari.ldap.managerpassword"),
     USER_OBJECT_CLASS("ambari.ldap.user.object.class"),
     USER_NAME_ATTRIBUTE("ambari.ldap.user.name.attribute"),
+    USER_NAME_FORCE_LOWERCASE("ambari.ldap.username.force.lowercase"),
     USER_SEARCH_BASE("ambari.ldap.user.search.base"),
+    SYNC_USER_MEMBER_REPLACE_PATTERN("ambari.ldap.sync.user.member.replacepattern"),
+    SYNC_USER_MEMBER_FILTER("ambari.ldap.sync.user.member_filter"),
 
+    ADMIN_GROUP_MAPPING_RULES ("ambari.ldap.admin.group.mappingrules"),
     GROUP_OBJECT_CLASS("ambari.ldap.group.object.class"),
     GROUP_NAME_ATTRIBUTE("ambari.ldap.group.name.attribute"),
     GROUP_MEMBER_ATTRIBUTE("ambari.ldap.group.member.attribute"),
     GROUP_SEARCH_BASE("ambari.ldap.group.search.base"),
-    DN_ATTRIBUTE("authentication.ldap.dnAttribute");
+    SYNC_GROUP_MEMBER_REPLACE_PATTERN("ambari.ldap.sync.group.member.replacepattern"),
+    SYNC_GROUP_MEMBER_FILTER("ambari.ldap.sync.group.member_filter"),
+    DN_ATTRIBUTE("authentication.ldap.dnAttribute"),
+
+    TEST_USER_NAME("ambari.ldap.test.user.name"),
+    TEST_USER_PASSWORD("ambari.ldap.test.user.password");
 
     private String propertyName;
 
