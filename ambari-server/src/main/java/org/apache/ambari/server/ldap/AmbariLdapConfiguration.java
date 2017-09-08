@@ -34,63 +34,67 @@ public class AmbariLdapConfiguration {
   /**
    * Constants representing supported LDAP related property names
    */
-  public enum LdapConfigProperty {
-    LDAP_CONFIGURED("ambari.ldap.configured"),
-    AUTOMATIC_ATTRIBUTE_DETECTION("ambari.ldap.automatic.attribute.detection"),
-    USE_SSL("ambari.ldap.usessl"),
-    LDAP_SERVER_HOST("ambari.ldap.server.host"),
-    LDAP_SERVER_PORT("ambari.ldap.server.port"),
-    LDAP_TRUSTSTORE("ambari.ldap.truststore"),
-    LDAP_TRUSTSTORE_TYPE("ambari.ldap.truststore.type"),
-    LDAP_TRUSTSTORE_PATH("ambari.ldap.truststore.path"),
-    LDAP_TRUSTSTORE_PASSWORD("ambari.ldap.truststore.password"),
-    BASE_DN("ambari.ldap.bind.dn"),
-    REFERRAL("ambari.ldap.referral"),
-    PAGINATION_ENABLED("ambari.ldap.pagination.enabled"),
+  public enum AmbariLdapConfig {
 
-    BIND_ANONIMOUSLY("ambari.ldap.bindanonymously"),
-    MANAGER_DN("ambari.ldap.managerdn"),
-    MANAGER_PASSWORD("ambari.ldap.managerpassword"),
-    USER_OBJECT_CLASS("ambari.ldap.user.object.class"),
-    USER_NAME_ATTRIBUTE("ambari.ldap.user.name.attribute"),
-    USER_NAME_FORCE_LOWERCASE("ambari.ldap.username.force.lowercase"),
-    USER_SEARCH_BASE("ambari.ldap.user.search.base"),
-    SYNC_USER_MEMBER_REPLACE_PATTERN("ambari.ldap.sync.user.member.replacepattern"),
-    SYNC_USER_MEMBER_FILTER("ambari.ldap.sync.user.member_filter"),
+    LDAP_ENABLED("ambari.ldap.authentication.enabled"),
+    SERVER_HOST("ambari.ldap.connectivity.server.host"),
+    SERVER_PORT("ambari.ldap.connectivity.server.port"),
+    USE_SSL("ambari.ldap.connectivity.use_ssl"),
 
-    ADMIN_GROUP_MAPPING_RULES ("ambari.ldap.admin.group.mappingrules"),
-    GROUP_OBJECT_CLASS("ambari.ldap.group.object.class"),
-    GROUP_NAME_ATTRIBUTE("ambari.ldap.group.name.attribute"),
-    GROUP_MEMBER_ATTRIBUTE("ambari.ldap.group.member.attribute"),
-    GROUP_SEARCH_BASE("ambari.ldap.group.search.base"),
-    SYNC_GROUP_MEMBER_REPLACE_PATTERN("ambari.ldap.sync.group.member.replacepattern"),
-    SYNC_GROUP_MEMBER_FILTER("ambari.ldap.sync.group.member_filter"),
-    DN_ATTRIBUTE("authentication.ldap.dnAttribute"),
+    TRUST_STORE("ambari.ldap.connectivity.trust_store"),
+    TRUST_STORE_TYPE("ambari.ldap.connectivity.trust_store.type"),
+    TRUST_STORE_PATH("ambari.ldap.connectivity.trust_store.path"),
+    TRUST_STORE_PASSWORD("ambari.ldap.connectivity.trust_store.password"),
+    ANONYMOUS_BIND("ambari.ldap.connectivity.anonymous_bind"),
 
-    TEST_USER_NAME("ambari.ldap.test.user.name"),
-    TEST_USER_PASSWORD("ambari.ldap.test.user.password");
+    BIND_DN("ambari.ldap.connectivity.bind_dn"),
+    BIND_PASSWORD("ambari.ldap.connectivity.bind_password"),
+
+    ATTR_DETECTION("ambari.ldap.attributes.detection"), // manual | auto
+
+    DN_ATTRIBUTE("ambari.ldap.attributes.dn_attr"),
+
+    USER_OBJECT_CLASS("ambari.ldap.attributes.user.object_class"),
+    USER_NAME_ATTRIBUTE("ambari.ldap.attributes.user.name_attr"),
+    USER_SEARCH_BASE("ambari.ldap.attributes.user.search_base"),
+
+    GROUP_OBJECT_CLASS("ambari.ldap.attributes.group.object_class"),
+    GROUP_NAME_ATTRIBUTE("ambari.ldap.attributes.group.name_attr"),
+    GROUP_MEMBER_ATTRIBUTE("ambari.ldap.attributes.group.member_attr"),
+    GROUP_SEARCH_BASE("ambari.ldap.attributes.user.search_base"),
+
+    USER_SEARCH_FILTER("ambari.ldap.advanced.user_search_filter"),
+    USER_MEMBER_REPLACE_PATTERN("ambari.ldap.advanced.user_member_replace_pattern"),
+    USER_MEMBER_FILTER("ambari.ldap.advanced.user_member_filter"),
+
+    GROUP_SEARCH_FILTER("ambari.ldap.advanced.group_search_filter"),
+    GROUP_MEMBER_REPLACE_PATTERN("ambari.ldap.advanced.group_member_replace_pattern"),
+    GROUP_MEMBER_FILTER("ambari.ldap.advanced.group_member_filter"),
+
+    FORCE_LOWERCASE_USERNAMES("ambari.ldap.advanced.force_lowercase_usernames"),
+    REFERRAL_HANDLING("ambari.ldap.advanced.referrals"), // folow
+    PAGINATION_ENABLED("ambari.ldap.advanced.pagination_enabled"); // true | false
 
     private String propertyName;
 
-    LdapConfigProperty(String propertyName) {
-      this.propertyName = propertyName;
+    AmbariLdapConfig(String propName) {
+      this.propertyName = propName;
     }
 
-    public String propertyName() {
+    public String key() {
       return this.propertyName;
     }
   }
 
   private final Map<String, Object> configurationMap;
 
-  private Object configurationValue(LdapConfigProperty ldapConfigProperty) {
+  private Object configValue(AmbariLdapConfig ambariLdapConfig) {
     Object value = null;
-    if (configurationMap.containsKey(ldapConfigProperty.propertyName)) {
-      value = configurationMap.get(ldapConfigProperty.propertyName);
+    if (configurationMap.containsKey(ambariLdapConfig.key())) {
+      value = configurationMap.get(ambariLdapConfig.key());
     } else {
-      LOGGER.warn("Ldap configuration property [{}] hasn't been set", ldapConfigProperty.propertyName());
+      LOGGER.warn("Ldap configuration property [{}] hasn't been set", ambariLdapConfig.key());
     }
-
     return value;
   }
 
@@ -99,65 +103,120 @@ public class AmbariLdapConfiguration {
     this.configurationMap = configuration;
   }
 
-
-  public String ldapServerHost() {
-    return (String) configurationValue(LdapConfigProperty.LDAP_SERVER_HOST);
+  public boolean ldapEnabled() {
+    return Boolean.valueOf((String) configValue(AmbariLdapConfig.LDAP_ENABLED));
   }
 
-  public int ldapServerPort() {
-    return Integer.valueOf((String) configurationValue(LdapConfigProperty.LDAP_SERVER_PORT));
+  public String serverHost() {
+    return (String) configValue(AmbariLdapConfig.SERVER_HOST);
+  }
+
+  public int serverPort() {
+    return Integer.valueOf((String) configValue(AmbariLdapConfig.SERVER_PORT));
   }
 
   public boolean useSSL() {
-    return Boolean.valueOf((String) configurationValue(LdapConfigProperty.USE_SSL));
+    return Boolean.valueOf((String) configValue(AmbariLdapConfig.USE_SSL));
   }
 
-  public boolean bindAnonimously() {
-    return Boolean.valueOf((String) configurationValue(LdapConfigProperty.BIND_ANONIMOUSLY));
+  public String trustStore() {
+    return (String) configValue(AmbariLdapConfig.TRUST_STORE);
   }
 
-  public String managerDn() {
-    return (String) configurationValue(LdapConfigProperty.MANAGER_DN);
+  public String trustStoreType() {
+    return (String) configValue(AmbariLdapConfig.TRUST_STORE_TYPE);
   }
 
-  public String managerPassword() {
-    return (String) configurationValue(LdapConfigProperty.MANAGER_PASSWORD);
+  public String trustStorePath() {
+    return (String) configValue(AmbariLdapConfig.TRUST_STORE_PATH);
   }
 
-  public boolean automaticAttributeDetection() {
-    return Boolean.valueOf((String) configurationValue(LdapConfigProperty.AUTOMATIC_ATTRIBUTE_DETECTION));
+  public String trustStorePassword() {
+    return (String) configValue(AmbariLdapConfig.TRUST_STORE_PASSWORD);
   }
 
-  public String baseDn() {
-    return (String) configurationValue(LdapConfigProperty.BASE_DN);
+  public boolean anonymousBind() {
+    return Boolean.valueOf((String) configValue(AmbariLdapConfig.ANONYMOUS_BIND));
+  }
+
+  public String bindDn() {
+    return (String) configValue(AmbariLdapConfig.BIND_DN);
+  }
+
+  public String bindPassword() {
+    return (String) configValue(AmbariLdapConfig.BIND_PASSWORD);
+  }
+
+  public String attributeDetection() {
+    return (String) configValue(AmbariLdapConfig.ATTR_DETECTION);
+  }
+
+  public String dnAttribute() {
+    return (String) configValue(AmbariLdapConfig.DN_ATTRIBUTE);
   }
 
   public String userObjectClass() {
-    return (String) configurationValue(LdapConfigProperty.USER_OBJECT_CLASS);
+    return (String) configValue(AmbariLdapConfig.USER_OBJECT_CLASS);
   }
 
   public String userNameAttribute() {
-    return (String) configurationValue(LdapConfigProperty.USER_NAME_ATTRIBUTE);
+    return (String) configValue(AmbariLdapConfig.USER_NAME_ATTRIBUTE);
   }
 
   public String userSearchBase() {
-    return (String) configurationValue(LdapConfigProperty.USER_SEARCH_BASE);
+    return (String) configValue(AmbariLdapConfig.USER_SEARCH_BASE);
   }
 
   public String groupObjectClass() {
-    return (String) configurationValue(LdapConfigProperty.GROUP_OBJECT_CLASS);
+    return (String) configValue(AmbariLdapConfig.GROUP_OBJECT_CLASS);
   }
 
   public String groupNameAttribute() {
-    return (String) configurationValue(LdapConfigProperty.GROUP_NAME_ATTRIBUTE);
+    return (String) configValue(AmbariLdapConfig.GROUP_NAME_ATTRIBUTE);
   }
 
   public String groupMemberAttribute() {
-    return (String) configurationValue(LdapConfigProperty.GROUP_MEMBER_ATTRIBUTE);
+    return (String) configValue(AmbariLdapConfig.GROUP_MEMBER_ATTRIBUTE);
   }
 
   public String groupSearchBase() {
-    return (String) configurationValue(LdapConfigProperty.GROUP_SEARCH_BASE);
+    return (String) configValue(AmbariLdapConfig.GROUP_SEARCH_BASE);
+  }
+
+  public String userSearchFilter() {
+    return (String) configValue(AmbariLdapConfig.USER_SEARCH_FILTER);
+  }
+
+  public String userMemberReplacePattern() {
+    return (String) configValue(AmbariLdapConfig.USER_MEMBER_REPLACE_PATTERN);
+  }
+
+  public String userMemberFilter() {
+    return (String) configValue(AmbariLdapConfig.USER_MEMBER_FILTER);
+  }
+
+  public String groupSearchFilter() {
+    return (String) configValue(AmbariLdapConfig.GROUP_SEARCH_FILTER);
+  }
+
+  public String groupMemberReplacePattern() {
+    return (String) configValue(AmbariLdapConfig.GROUP_MEMBER_REPLACE_PATTERN);
+  }
+
+  public String groupMemberFilter() {
+    return (String) configValue(AmbariLdapConfig.GROUP_MEMBER_FILTER);
+  }
+
+  public boolean forceLowerCaseUserNames() {
+    return Boolean.valueOf((String) configValue(AmbariLdapConfig.FORCE_LOWERCASE_USERNAMES));
+  }
+
+  public boolean paginationEnabled() {
+    return Boolean.valueOf((String) configValue(AmbariLdapConfig.PAGINATION_ENABLED));
+  }
+
+  public String referralHandling() {
+    return (String) configValue(AmbariLdapConfig.REFERRAL_HANDLING);
   }
 
 }

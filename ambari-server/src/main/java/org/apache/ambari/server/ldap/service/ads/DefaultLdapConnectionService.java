@@ -52,8 +52,8 @@ public class DefaultLdapConnectionService implements LdapConnectionService {
     LOGGER.debug("Creating a configuration instance based on the ambari configuration: {}", ambariAmbariLdapConfiguration);
 
     LdapConnectionConfig ldapConnectionConfig = new LdapConnectionConfig();
-    ldapConnectionConfig.setLdapHost(ambariAmbariLdapConfiguration.ldapServerHost());
-    ldapConnectionConfig.setLdapPort(ambariAmbariLdapConfiguration.ldapServerPort());
+    ldapConnectionConfig.setLdapHost(ambariAmbariLdapConfiguration.serverHost());
+    ldapConnectionConfig.setLdapPort(ambariAmbariLdapConfiguration.serverPort());
     ldapConnectionConfig.setUseSsl(ambariAmbariLdapConfiguration.useSSL());
 
     // todo set the other values as required

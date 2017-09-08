@@ -186,9 +186,9 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
    */
   private void bind(AmbariLdapConfiguration ambariLdapConfiguration, LdapConnection connection) throws LdapException {
     LOGGER.info("Connecting to LDAP ....");
-    if (!ambariLdapConfiguration.bindAnonimously()) {
+    if (!ambariLdapConfiguration.anonymousBind()) {
       LOGGER.debug("Anonimous binding not supported, binding with the manager detailas...");
-      connection.bind(ambariLdapConfiguration.managerDn(), ambariLdapConfiguration.managerPassword());
+      connection.bind(ambariLdapConfiguration.bindDn(), ambariLdapConfiguration.bindPassword());
     } else {
       LOGGER.debug("Binding anonimously ...");
       connection.bind();

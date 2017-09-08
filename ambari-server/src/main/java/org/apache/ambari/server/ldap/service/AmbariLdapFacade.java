@@ -55,6 +55,9 @@ public class AmbariLdapFacade implements LdapFacade {
   @Inject
   private LdapConnectionService ldapConnectionService;
 
+  @Inject
+  private LdapAttributeDetectionService ldapAttributeDetectionService;
+
   //todo remove this, added for testing purposes only
   @Inject
   private Provider<AmbariLdapConfiguration> ambariLdapConfigurationProvider;
@@ -78,9 +81,12 @@ public class AmbariLdapFacade implements LdapFacade {
 
 
   @Override
-  public void detectAttributes(AmbariLdapConfiguration ambariLdapConfiguration) {
+  public AmbariLdapConfiguration detectAttributes(AmbariLdapConfiguration ambariLdapConfiguration) {
     LOGGER.info("Detecting LDAP configuration attributes ...");
-    LOGGER.info("LDAP config: {}", ambariLdapConfigurationProvider.get());
+
+    LdapConnection connection = ldapConnectionService.createLdapConnection(ambariLdapConfiguration);
+    ambariLdapConfiguration = ldapAttributeDetectionService.detectLdapUserAttributes(connection, ambariLdapConfiguration);
+    return ambariLdapConfiguration;
   }
 
   @Override

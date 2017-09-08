@@ -24,6 +24,7 @@ import javax.inject.Singleton;
 import org.apache.ambari.server.events.AmbariLdapConfigChangedEvent;
 import org.apache.ambari.server.events.publishers.AmbariEventPublisher;
 import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
+import org.apache.ambari.server.ldap.LdapConfigurationFactory;
 import org.apache.ambari.server.orm.dao.AmbariConfigurationDAO;
 import org.apache.ambari.server.orm.entities.AmbariConfigurationEntity;
 import org.apache.ambari.server.security.authorization.AmbariLdapAuthenticationProvider;
@@ -54,6 +55,9 @@ public class AmbariLdapConfigurationProvider implements Provider<AmbariLdapConfi
 
   @Inject
   private Provider<AmbariConfigurationDAO> ambariConfigurationDAOProvider;
+
+  @Inject
+  private LdapConfigurationFactory ldapConfigurationFactory;
 
   private Gson gson = new GsonBuilder().create();
 
@@ -95,7 +99,7 @@ public class AmbariLdapConfigurationProvider implements Provider<AmbariLdapConfi
 
     if (configEntity != null) {
       Set propertyMaps = gson.fromJson(configEntity.getConfigurationBaseEntity().getConfigurationData(), Set.class);
-      instance = new AmbariLdapConfiguration((Map<String, Object>) propertyMaps.iterator().next());
+      instance = ldapConfigurationFactory.createLdapConfiguration((Map<String, Object>) propertyMaps.iterator().next());
     }
 
     LOGGER.info("Loaded LDAP configuration instance: [ {} ]", instance);
