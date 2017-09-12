@@ -15,7 +15,7 @@
 package org.apache.ambari.server.ldap.service;
 
 import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
-import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.LdapConnection;
 
 /**
  * Contract defining factory methods for creating LDAP connection instances.
@@ -29,7 +29,15 @@ public interface LdapConnectionService {
    * @param ambariLdapConfiguration configuration instance with information for creating the connection instance
    * @return a set up LdapConnection instance
    */
-  LdapNetworkConnection createLdapConnection(AmbariLdapConfiguration ambariLdapConfiguration);
+  LdapConnection createLdapConnection(AmbariLdapConfiguration ambariLdapConfiguration);
+
+  /**
+   * Creates an LdapConnection instance and binds to the LDAP server based on the provided configuration entries
+   *
+   * @param ambariLdapConfiguration ambari configuration instance
+   * @return
+   */
+  LdapConnection getBoundLdapConnection(AmbariLdapConfiguration ambariLdapConfiguration);
 
 
 }

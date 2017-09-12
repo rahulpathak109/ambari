@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
@@ -58,35 +57,59 @@ public class AmbariLdapFacade implements LdapFacade {
   @Inject
   private LdapAttributeDetectionService ldapAttributeDetectionService;
 
-  //todo remove this, added for testing purposes only
-  @Inject
-  private Provider<AmbariLdapConfiguration> ambariLdapConfigurationProvider;
-
   @Inject
   public AmbariLdapFacade() {
   }
 
   @Override
   public void checkConnection(AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {
+    LdapConnection connection = null;
     try {
+
       LOGGER.info("Validating LDAP connection related configuration based on: {}", ambariLdapConfiguration);
-      LdapConnection connection = ldapConnectionService.createLdapConnection(ambariLdapConfiguration);
+      connection = ldapConnectionService.getBoundLdapConnection(ambariLdapConfiguration);
       ldapConfigurationService.checkConnection(connection, ambariLdapConfiguration);
-    } catch (AmbariLdapException e) {
+      LOGGER.info("Validating LDAP connection related configuration: SUCCESS");
+
+    } catch (Exception e) {
+
       LOGGER.error("Validating LDAP connection configuration failed", e);
-      throw e;
+      throw new AmbariLdapException(e);
+
+    } finally {
+      try {
+        connection.unBind();
+        connection.close();
+      } catch (Exception e) {
+        throw new AmbariLdapException(e);
+      }
     }
-    LOGGER.info("Validating LDAP connection related configuration: SUCCESS");
+
   }
 
 
   @Override
-  public AmbariLdapConfiguration detectAttributes(AmbariLdapConfiguration ambariLdapConfiguration) {
+  public AmbariLdapConfiguration detectAttributes(AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {
     LOGGER.info("Detecting LDAP configuration attributes ...");
 
-    LdapConnection connection = ldapConnectionService.createLdapConnection(ambariLdapConfiguration);
-    ambariLdapConfiguration = ldapAttributeDetectionService.detectLdapUserAttributes(connection, ambariLdapConfiguration);
-    return ambariLdapConfiguration;
+    LdapConnection connection = ldapConnectionService.getBoundLdapConnection(ambariLdapConfiguration);
+    try {
+
+      ambariLdapConfiguration = ldapAttributeDetectionService.detectLdapUserAttributes(connection, ambariLdapConfiguration);
+      ambariLdapConfiguration = ldapAttributeDetectionService.detectLdapGroupAttributes(connection, ambariLdapConfiguration);
+      return ambariLdapConfiguration;
+
+    } catch (Exception e) {
+      LOGGER.error("Error during LDAP attribute detection", e);
+      throw new AmbariLdapException(e);
+    } finally {
+      try {
+        connection.unBind();
+        connection.close();
+      } catch (Exception e) {
+        throw new AmbariLdapException(e);
+      }
+    }
   }
 
   @Override
@@ -98,7 +121,7 @@ public class AmbariLdapFacade implements LdapFacade {
       throw new IllegalArgumentException("No test user available for testing LDAP attributes");
     }
 
-    LdapConnection ldapConnection = ldapConnectionService.createLdapConnection(ldapConfiguration);
+    LdapConnection ldapConnection = ldapConnectionService.getBoundLdapConnection(ldapConfiguration);
 
     LOGGER.info("Testing LDAP user attributes with test user: {}", userName);
     String userDn = ldapConfigurationService.checkUserAttributes(ldapConnection, userName, testUserPass, ldapConfiguration);

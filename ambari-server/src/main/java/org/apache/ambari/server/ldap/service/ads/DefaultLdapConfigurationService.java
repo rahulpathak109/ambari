@@ -14,24 +14,20 @@
 
 package org.apache.ambari.server.ldap.service.ads;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.apache.ambari.server.AmbariException;
 import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
 import org.apache.ambari.server.ldap.LdapConfigurationService;
 import org.apache.ambari.server.ldap.service.AmbariLdapException;
-import org.apache.ambari.server.ldap.service.LdapConnectionService;
 import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.Response;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
 import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
@@ -53,9 +49,6 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLdapConfigurationService.class);
 
-  @Inject
-  private LdapConnectionService ldapConnectionService;
-
   /**
    * Facilitating the instantiation
    */
@@ -65,12 +58,12 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
 
   @Override
   public void checkConnection(LdapConnection ldapConnection, AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {
-    try {
-      bind(ambariLdapConfiguration, ldapConnection);
-    } catch (LdapException e) {
-      LOGGER.error("Could not connect to the LDAP server", e);
-      throw new AmbariLdapException(e);
+
+    if (!ldapConnection.isConnected()) {
+      LOGGER.error("Could not connect to the LDAP server");
+      throw new AmbariLdapException("Could not connect to the LDAP server. Configuration: " + ambariLdapConfiguration);
     }
+
   }
 
 
@@ -80,21 +73,19 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
    *
    * Invalid attributes are signaled by throwing an exception.
    *
+   * @param ldapConnection          connection instance used to connect to the LDAP server
    * @param testUserName            the test username
    * @param testPassword            the test password
    * @param ambariLdapConfiguration configuration instance holding ldap configuration details
    * @return the DN of the test user
-   * @throws AmbariException if the attributes are not valid or any errors occurs
+   * @throws AmbariLdapException if an error occurs
    */
   @Override
   public String checkUserAttributes(LdapConnection ldapConnection, String testUserName, String testPassword, AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {
-    SearchCursor searchCursor = null;
     String userDn = null;
+    EntryCursor entryCursor = null;
     try {
       LOGGER.info("Checking user attributes for user {} r ...", testUserName);
-
-      // bind anonimously or with manager data
-      bind(ambariLdapConfiguration, ldapConnection);
 
       // set up a filter based on the provided attributes
       String filter = FilterBuilder.and(
@@ -103,7 +94,7 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
         .toString();
 
       LOGGER.info("Searching for the user: {} using the search filter: {}", testUserName, filter);
-      EntryCursor entryCursor = ldapConnection.search(new Dn(ambariLdapConfiguration.userSearchBase()), filter, SearchScope.SUBTREE);
+      entryCursor = ldapConnection.search(new Dn(ambariLdapConfiguration.userSearchBase()), filter, SearchScope.SUBTREE);
 
       // collecting search result entries
       List<Entry> users = Lists.newArrayList();
@@ -127,7 +118,9 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
       throw new AmbariLdapException(e.getMessage(), e);
 
     } finally {
-      closeResources(ldapConnection, searchCursor);
+      if (null != entryCursor) {
+        entryCursor.close();
+      }
     }
     return userDn;
   }
@@ -140,8 +133,6 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
 
     try {
       LOGGER.info("Checking group attributes for user dn {} ...", userDn);
-
-      bind(ambariLdapConfiguration, ldapConnection);
 
       // set up a filter based on the provided attributes
       String filter = FilterBuilder.and(
@@ -171,34 +162,12 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
       throw new AmbariLdapException(e.getMessage(), e);
 
     } finally {
-      closeResources(ldapConnection, searchCursor);
+      if (null != searchCursor) {
+        searchCursor.close();
+      }
     }
 
     return processGroupResults(groupResponses, ambariLdapConfiguration);
-  }
-
-  /**
-   * Binds to the LDAP server (anonimously or wit manager credentials)
-   *
-   * @param ambariLdapConfiguration configuration instance
-   * @param connection              connection instance
-   * @throws LdapException if the bind operation fails
-   */
-  private void bind(AmbariLdapConfiguration ambariLdapConfiguration, LdapConnection connection) throws LdapException {
-    LOGGER.info("Connecting to LDAP ....");
-    if (!ambariLdapConfiguration.anonymousBind()) {
-      LOGGER.debug("Anonimous binding not supported, binding with the manager detailas...");
-      connection.bind(ambariLdapConfiguration.bindDn(), ambariLdapConfiguration.bindPassword());
-    } else {
-      LOGGER.debug("Binding anonymously ...");
-      connection.bind();
-    }
-
-    if (!connection.isConnected()) {
-      LOGGER.error("Not connected to the LDAP server. Connection instance: {}", connection);
-      throw new IllegalStateException("The connection to the LDAP server is not alive");
-    }
-    LOGGER.info("Connected to LDAP.");
   }
 
 
@@ -220,22 +189,6 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
     return groupStrSet;
   }
 
-  private void closeResources(LdapConnection connection, SearchCursor searchCursor) {
-    LOGGER.debug("Housekeeping: closing the connection and the search cursor ...");
-
-    if (null != searchCursor) {
-      // this method is idempotent
-      searchCursor.close();
-    }
-
-    if (null != connection) {
-      try {
-        connection.close();
-      } catch (IOException e) {
-        LOGGER.error("Exception occurred while closing the connection", e);
-      }
-    }
-  }
 
 }
 

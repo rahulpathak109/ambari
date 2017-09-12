@@ -78,7 +78,7 @@ public abstract class OccurranceAndWeightBasedDetector implements AttributeDetec
 
   @Override
   public void collect(Entry entry) {
-    LOGGER.info("Collecting ldap attributes/values form entry with dn: [{]]", entry.getDn());
+    LOGGER.info("Collecting ldap attributes/values form entry with dn: [{}]", entry.getDn());
 
     for (String attributeValue : occurranceMap().keySet()) {
       if (applies(entry, attributeValue)) {

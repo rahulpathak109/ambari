@@ -32,6 +32,7 @@ import javax.inject.Singleton;
 
 import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
 import org.apache.ambari.server.ldap.service.LdapConnectionService;
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.slf4j.Logger;
@@ -45,18 +46,54 @@ public class DefaultLdapConnectionService implements LdapConnectionService {
   @Override
   public LdapNetworkConnection createLdapConnection(AmbariLdapConfiguration ambariLdapConfiguration) {
     LOGGER.debug("Creating ldap connection instance from: {}", ambariLdapConfiguration);
+
     return new LdapNetworkConnection(getLdapConnectionConfig(ambariLdapConfiguration));
   }
 
+  @Override
+  public LdapConnection getBoundLdapConnection(AmbariLdapConfiguration ambariLdapConfiguration) {
+    LOGGER.info("Creating LDAP connection instance and binding to LDAP server ...");
+
+    try {
+      LdapConnection connection = createLdapConnection(ambariLdapConfiguration);
+
+      if (!ambariLdapConfiguration.anonymousBind()) {
+
+        LOGGER.debug("Anonymous binding not supported, binding with the manager detailas...");
+        connection.bind(ambariLdapConfiguration.bindDn(), ambariLdapConfiguration.bindPassword());
+
+      } else {
+
+        LOGGER.debug("Binding anonymously ...");
+        connection.bind();
+
+      }
+
+      if (!connection.isConnected()) {
+
+        LOGGER.error("Not connected to the LDAP server. Connection instance: {}", connection);
+        throw new IllegalStateException("The connection to the LDAP server is not alive");
+
+      }
+
+      LOGGER.info("Connected / bound to LDAP server.");
+      return connection;
+
+    } catch (Exception e) {
+      LOGGER.error("Could not create or bind LdapConnection", e);
+      throw new IllegalArgumentException(e);
+    }
+
+  }
+
   private LdapConnectionConfig getLdapConnectionConfig(AmbariLdapConfiguration ambariAmbariLdapConfiguration) {
-    LOGGER.debug("Creating a configuration instance based on the ambari configuration: {}", ambariAmbariLdapConfiguration);
+    LOGGER.debug("Creating a LDAP connection config instance based on the ambari configuration: {}", ambariAmbariLdapConfiguration);
 
     LdapConnectionConfig ldapConnectionConfig = new LdapConnectionConfig();
     ldapConnectionConfig.setLdapHost(ambariAmbariLdapConfiguration.serverHost());
     ldapConnectionConfig.setLdapPort(ambariAmbariLdapConfiguration.serverPort());
     ldapConnectionConfig.setUseSsl(ambariAmbariLdapConfiguration.useSSL());
 
-    // todo set the other values as required
     return ldapConnectionConfig;
   }
 

@@ -39,7 +39,7 @@ public interface LdapFacade {
    *
    * @param ambariLdapConfiguration
    */
-  AmbariLdapConfiguration detectAttributes(AmbariLdapConfiguration ambariLdapConfiguration);
+  AmbariLdapConfiguration detectAttributes(AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException;
 
   /**
    * Checks user and group related LDAP configuration attributes in the configuration object with the help of the provided parameters
