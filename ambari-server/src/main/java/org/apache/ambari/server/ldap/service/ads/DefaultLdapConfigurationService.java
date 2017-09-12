@@ -49,9 +49,6 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLdapConfigurationService.class);
 
-  /**
-   * Facilitating the instantiation
-   */
   @Inject
   public DefaultLdapConfigurationService() {
   }

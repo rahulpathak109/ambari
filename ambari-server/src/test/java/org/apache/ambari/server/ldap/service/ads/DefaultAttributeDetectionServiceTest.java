@@ -21,7 +21,6 @@ import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
 import org.apache.ambari.server.ldap.service.LdapConnectionService;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.easymock.EasyMockRule;
 import org.easymock.TestSubject;
 import org.junit.Assert;
@@ -76,7 +75,7 @@ public class DefaultAttributeDetectionServiceTest {
     // GIVEN
     AmbariLdapConfiguration ambariLdapConfiguration = new AmbariLdapConfiguration(getTestPropertiesMap());
     LdapConnectionService connectionService = new DefaultLdapConnectionService();
-    LdapNetworkConnection ldapConnection = connectionService.createLdapConnection(ambariLdapConfiguration);
+    LdapConnection ldapConnection = connectionService.createLdapConnection(ambariLdapConfiguration);
 
     // WHEN
     AmbariLdapConfiguration config = attributeDetectionService.detectLdapUserAttributes(ldapConnection, ambariLdapConfiguration);

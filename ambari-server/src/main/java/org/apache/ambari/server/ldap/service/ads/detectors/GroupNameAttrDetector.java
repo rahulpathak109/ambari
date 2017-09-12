@@ -14,6 +14,8 @@
 
 package org.apache.ambari.server.ldap.service.ads.detectors;
 
+import javax.inject.Inject;
+
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +47,7 @@ public class GroupNameAttrDetector extends OccurranceAndWeightBasedDetector {
 
   }
 
+  @Inject
   public GroupNameAttrDetector() {
 
     for (GroupNameAttr groupNameAttr : GroupNameAttr.values()) {

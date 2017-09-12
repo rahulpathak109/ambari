@@ -86,6 +86,7 @@ public class LdapConfigurationService extends AmbariConfigurationService {
     authorize();
 
     Set<String> groups = Sets.newHashSet();
+    Object responseEntity = null;
 
     Result result = new ResultImpl(new ResultStatus(ResultStatus.STATUS.OK));
     try {
@@ -108,13 +109,14 @@ public class LdapConfigurationService extends AmbariConfigurationService {
 
           LOGGER.info("Testing LDAP attributes ....");
           groups = ldapFacade.checkLdapAttributes(ldapConfigurationRequest.getRequestInfo().getParameters(), ambariLdapConfiguration);
-          setResult(groups, result);
+          responseEntity = groups;
 
           break;
         case DETECT_ATTRIBUTES:
 
           LOGGER.info("Detecting LDAP attributes ...");
-          ldapFacade.detectAttributes(ambariLdapConfiguration);
+          ambariLdapConfiguration = ldapFacade.detectAttributes(ambariLdapConfiguration);
+          responseEntity = ambariLdapConfiguration;
 
           break;
         default:
@@ -123,10 +125,11 @@ public class LdapConfigurationService extends AmbariConfigurationService {
       }
 
     } catch (Exception e) {
-      result.setResultStatus(new ResultStatus(ResultStatus.STATUS.BAD_REQUEST, e));
+      result.setResultStatus(new ResultStatus(ResultStatus.STATUS.SERVER_ERROR, e));
+      responseEntity = e.getMessage();
     }
 
-    return Response.status(result.getStatus().getStatusCode()).entity(getResultSerializer().serialize(result)).build();
+    return Response.status(result.getStatus().getStatusCode()).entity(responseEntity).build();
   }
 
   private void setResult(Set<String> groups, Result result) {

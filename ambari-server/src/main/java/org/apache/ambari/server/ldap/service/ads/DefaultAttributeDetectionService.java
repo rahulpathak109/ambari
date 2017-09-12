@@ -48,21 +48,22 @@ public class DefaultAttributeDetectionService implements LdapAttributeDetectionS
 
 
   @Inject
-  private UserNameAttrDetector userNameAttrDetector = new UserNameAttrDetector(); // todo remove instantition
+  private UserNameAttrDetector userNameAttrDetector;
 
   @Inject
-  private UserObjectClassDetector userObjectClassDetector = new UserObjectClassDetector(); // todo remove instantition
+  private UserObjectClassDetector userObjectClassDetector;
 
   @Inject
-  private UserGroupMemberAttrDetector userGroupMemberAttrDetector = new UserGroupMemberAttrDetector(); // todo remove instantition
+  private UserGroupMemberAttrDetector userGroupMemberAttrDetector;
 
   @Inject
-  private GroupNameAttrDetector groupNameAttrDetector = new GroupNameAttrDetector(); // todo remove instantition
+  private GroupNameAttrDetector groupNameAttrDetector;
 
   @Inject
-  private GroupObjectClassDetector groupObjectClassDetector = new GroupObjectClassDetector(); // todo remove instantition
+  private GroupObjectClassDetector groupObjectClassDetector;
 
-  private GroupMemberAttrDetector groupMemberAttrDetector = new GroupMemberAttrDetector(); // todo remove instantition
+  @Inject
+  private GroupMemberAttrDetector groupMemberAttrDetector;
 
   @Inject
   public DefaultAttributeDetectionService() {
@@ -81,8 +82,6 @@ public class DefaultAttributeDetectionService implements LdapAttributeDetectionS
     SearchCursor searchCursor = null;
 
     try {
-      // todo should the bind operation be done in the facade?
-      connection.bind(ambariLdapConfiguration.bindDn(), ambariLdapConfiguration.bindPassword());
 
       SearchRequest searchRequest = assembleUserSearchRequest(ambariLdapConfiguration);
 

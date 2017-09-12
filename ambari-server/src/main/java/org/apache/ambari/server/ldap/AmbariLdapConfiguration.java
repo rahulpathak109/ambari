@@ -62,7 +62,7 @@ public class AmbariLdapConfiguration {
     GROUP_OBJECT_CLASS("ambari.ldap.attributes.group.object_class"),
     GROUP_NAME_ATTRIBUTE("ambari.ldap.attributes.group.name_attr"),
     GROUP_MEMBER_ATTRIBUTE("ambari.ldap.attributes.group.member_attr"),
-    GROUP_SEARCH_BASE("ambari.ldap.attributes.user.search_base"),
+    GROUP_SEARCH_BASE("ambari.ldap.attributes.group.search_base"),
 
     USER_SEARCH_FILTER("ambari.ldap.advanced.user_search_filter"),
     USER_MEMBER_REPLACE_PATTERN("ambari.ldap.advanced.user_member_replace_pattern"),

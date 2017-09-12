@@ -95,13 +95,18 @@ public class AmbariLdapFacade implements LdapFacade {
     LdapConnection connection = ldapConnectionService.getBoundLdapConnection(ambariLdapConfiguration);
     try {
 
+      // decorate the configuration with detected user attributes
       ambariLdapConfiguration = ldapAttributeDetectionService.detectLdapUserAttributes(connection, ambariLdapConfiguration);
+
+      // decorate the configuration with detected group attributes
       ambariLdapConfiguration = ldapAttributeDetectionService.detectLdapGroupAttributes(connection, ambariLdapConfiguration);
       return ambariLdapConfiguration;
 
     } catch (Exception e) {
+
       LOGGER.error("Error during LDAP attribute detection", e);
       throw new AmbariLdapException(e);
+
     } finally {
       try {
         connection.unBind();
@@ -126,6 +131,7 @@ public class AmbariLdapFacade implements LdapFacade {
     LOGGER.info("Testing LDAP user attributes with test user: {}", userName);
     String userDn = ldapConfigurationService.checkUserAttributes(ldapConnection, userName, testUserPass, ldapConfiguration);
 
+    // todo handle the case where group membership is stored in the user rather than the group
     LOGGER.info("Testing LDAP group attributes with test user dn: {}", userDn);
     Set<String> groups = ldapConfigurationService.checkGroupAttributes(ldapConnection, userDn, ldapConfiguration);
 

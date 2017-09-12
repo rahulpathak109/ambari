@@ -14,6 +14,8 @@
 
 package org.apache.ambari.server.ldap.service.ads.detectors;
 
+import javax.inject.Inject;
+
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +46,7 @@ public class UserNameAttrDetector extends OccurranceAndWeightBasedDetector {
 
   }
 
+  @Inject
   public UserNameAttrDetector() {
     for (UserNameAttrs nameAttr : UserNameAttrs.values()) {
       occurranceMap().put(nameAttr.attrName(), 0);

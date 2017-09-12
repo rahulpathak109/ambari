@@ -14,6 +14,8 @@
 
 package org.apache.ambari.server.ldap.service.ads.detectors;
 
+import javax.inject.Inject;
+
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +52,7 @@ public class GroupObjectClassDetector extends OccurranceAndWeightBasedDetector {
 
   }
 
+  @Inject
   public GroupObjectClassDetector() {
     for (ObjectClassValue ocVal : ObjectClassValue.values()) {
       occurranceMap().put(ocVal.ocVal(), 0);

@@ -86,7 +86,7 @@ public class DefaultLdapConfigurationServiceTest {
 
     AmbariLdapConfiguration ambariLdapConfiguration = new AmbariLdapConfiguration(ldapPropsMap);
     LdapConnectionService connectionService = new DefaultLdapConnectionService();
-    LdapNetworkConnection ldapConnection = connectionService.createLdapConnection(ambariLdapConfiguration);
+    LdapConnection ldapConnection = connectionService.createLdapConnection(ambariLdapConfiguration);
 
     ldapConfigurationService.checkUserAttributes(ldapConnection, "einstein", "", ambariLdapConfiguration);
   }
@@ -108,7 +108,7 @@ public class DefaultLdapConfigurationServiceTest {
 
     AmbariLdapConfiguration ambariLdapConfiguration = new AmbariLdapConfiguration(ldapPropsMap);
     LdapConnectionService connectionService = new DefaultLdapConnectionService();
-    LdapNetworkConnection ldapConnection = connectionService.createLdapConnection(ambariLdapConfiguration);
+    LdapConnection ldapConnection = connectionService.createLdapConnection(ambariLdapConfiguration);
 
     ldapConfigurationService.checkGroupAttributes(ldapConnection, "uid=einstein,dc=example,dc=com", ambariLdapConfiguration);
   }
