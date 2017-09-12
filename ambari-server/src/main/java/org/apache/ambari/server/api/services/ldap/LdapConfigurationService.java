@@ -107,7 +107,7 @@ public class LdapConfigurationService extends AmbariConfigurationService {
         case TEST_ATTRIBUTES:
 
           LOGGER.info("Testing LDAP attributes ....");
-          groups = ldapFacade.checkLdapAttibutes(ldapConfigurationRequest.getRequestInfo().getParameters(), ambariLdapConfiguration);
+          groups = ldapFacade.checkLdapAttributes(ldapConfigurationRequest.getRequestInfo().getParameters(), ambariLdapConfiguration);
           setResult(groups, result);
 
           break;

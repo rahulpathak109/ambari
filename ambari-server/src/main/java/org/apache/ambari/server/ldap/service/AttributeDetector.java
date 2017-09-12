@@ -14,5 +14,25 @@
 
 package org.apache.ambari.server.ldap.service;
 
-public interface LdapSearchService {
+/**
+ * Operations for detecting LDAP related settings.
+ * Attributes and values are detected based on a sample set of results returned from a search
+ */
+public interface AttributeDetector<T> {
+
+  /**
+   * Collects potential attribute names or values from a set of result entries.
+   *
+   * @param entry a result entry returned by a search operation
+   */
+  void collect(T entry);
+
+  /**
+   * Implements the decision based on whiche the "best" possible attribute or value is selected.
+   *
+   * @return the most probable attribute name or value (based on the logic in the implementer)
+   */
+  String detect();
+
+
 }

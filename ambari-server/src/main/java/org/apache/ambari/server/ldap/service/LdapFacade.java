@@ -48,5 +48,5 @@ public interface LdapFacade {
    * @param ambariLdapConfiguration configutration instance with available attributes
    * @throws AmbariLdapException if the attribute checking fails
    */
-  Set<String> checkLdapAttibutes(Map<String, Object> parameters, AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException;
+  Set<String> checkLdapAttributes(Map<String, Object> parameters, AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException;
 }

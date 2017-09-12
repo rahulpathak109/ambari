@@ -90,7 +90,7 @@ public class AmbariLdapFacade implements LdapFacade {
   }
 
   @Override
-  public Set<String> checkLdapAttibutes(Map<String, Object> parameters, AmbariLdapConfiguration ldapConfiguration) throws AmbariLdapException {
+  public Set<String> checkLdapAttributes(Map<String, Object> parameters, AmbariLdapConfiguration ldapConfiguration) throws AmbariLdapException {
     String userName = getTestUserNameFromParameters(parameters);
     String testUserPass = getTestUserPasswordFromParameters(parameters);
 

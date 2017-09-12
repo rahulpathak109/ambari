@@ -98,6 +98,10 @@ public class AmbariLdapConfiguration {
     return value;
   }
 
+  public void setValueFor(AmbariLdapConfig ambariLdapConfig, Object value) {
+    configurationMap.put(ambariLdapConfig.key(), value);
+  }
+
   @Inject
   public AmbariLdapConfiguration(@Assisted Map<String, Object> configuration) {
     this.configurationMap = configuration;
@@ -219,4 +223,9 @@ public class AmbariLdapConfiguration {
     return (String) configValue(AmbariLdapConfig.REFERRAL_HANDLING);
   }
 
+
+  @Override
+  public String toString() {
+    return configurationMap.toString();
+  }
 }

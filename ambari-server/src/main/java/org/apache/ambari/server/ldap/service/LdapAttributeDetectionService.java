@@ -15,12 +15,11 @@
 package org.apache.ambari.server.ldap.service;
 
 import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
-import org.apache.directory.ldap.client.api.LdapConnection;
 
 /**
  * Contract defining operations to detect user and group attributes.
  */
-public interface LdapAttributeDetectionService {
+public interface LdapAttributeDetectionService<T> {
 
   /**
    * Decorates the passed in configuration with the detected ldap user attribute values
@@ -29,7 +28,7 @@ public interface LdapAttributeDetectionService {
    * @param ambariLdapConfiguration configuration instance holding connection details
    * @return the configuration decorated with user related attributes
    */
-  AmbariLdapConfiguration detectLdapUserAttributes(LdapConnection ldapConnection, AmbariLdapConfiguration ambariLdapConfiguration);
+  AmbariLdapConfiguration detectLdapUserAttributes(T ldapConnection, AmbariLdapConfiguration ambariLdapConfiguration);
 
   /**
    * Decorates the passed in configuration with the detected ldap group attribute values
@@ -38,6 +37,6 @@ public interface LdapAttributeDetectionService {
    * @param ambariLdapConfiguration configuration instance holding connection details
    * @return the configuration decorated with group related attributes
    */
-  AmbariLdapConfiguration detectLdapGroupAttributes(LdapConnection ldapConnection, AmbariLdapConfiguration ambariLdapConfiguration);
+  AmbariLdapConfiguration detectLdapGroupAttributes(T ldapConnection, AmbariLdapConfiguration ambariLdapConfiguration);
 }
 

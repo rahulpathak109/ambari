@@ -190,7 +190,7 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
       LOGGER.debug("Anonimous binding not supported, binding with the manager detailas...");
       connection.bind(ambariLdapConfiguration.bindDn(), ambariLdapConfiguration.bindPassword());
     } else {
-      LOGGER.debug("Binding anonimously ...");
+      LOGGER.debug("Binding anonymously ...");
       connection.bind();
     }
 
