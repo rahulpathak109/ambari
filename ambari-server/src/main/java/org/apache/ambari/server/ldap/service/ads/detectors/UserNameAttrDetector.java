@@ -12,23 +12,16 @@
  * limitations under the License.
  */
 
-package org.apache.ambari.server.ldap.service.ads;
-
-import java.util.Map;
+package org.apache.ambari.server.ldap.service.ads.detectors;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Maps;
+public class UserNameAttrDetector extends OccurranceAndWeightBasedDetector {
+  private static final Logger LOGGER = LoggerFactory.getLogger(UserNameAttrDetector.class);
 
-public class UserNameAttributeDetector extends OccurranceAndWeightBasedDetector {
-  private static final Logger LOGGER = LoggerFactory.getLogger(UserNameAttributeDetector.class);
-
-  private Map<String, Integer> occurranceMap = Maps.newHashMap();
-  private Map<String, Integer> weightsMap = Maps.newHashMap();
-
-  private enum NameAttrs {
+  private enum UserNameAttrs {
     SAM_ACCOUNT_NAME("sAMAccountName", 5),
     UID("uid", 3),
     CN("cn", 1);
@@ -36,7 +29,7 @@ public class UserNameAttributeDetector extends OccurranceAndWeightBasedDetector 
     private String attrName;
     private Integer weight;
 
-    NameAttrs(String attr, Integer weght) {
+    UserNameAttrs(String attr, Integer weght) {
       this.attrName = attr;
       this.weight = weght;
     }
@@ -51,19 +44,11 @@ public class UserNameAttributeDetector extends OccurranceAndWeightBasedDetector 
 
   }
 
-  public UserNameAttributeDetector() {
-    for (NameAttrs nameAttr : NameAttrs.values()) {
-      occurranceMap.put(nameAttr.attrName(), 0);
-      weightsMap.put(nameAttr.attrName(), nameAttr.weight());
+  public UserNameAttrDetector() {
+    for (UserNameAttrs nameAttr : UserNameAttrs.values()) {
+      occurranceMap().put(nameAttr.attrName(), 0);
+      weightsMap().put(nameAttr.attrName(), nameAttr.weight());
     }
-  }
-
-  protected Map<String, Integer> occurranceMap() {
-    return occurranceMap;
-  }
-
-  protected Map<String, Integer> weightsMap() {
-    return weightsMap;
   }
 
   @Override

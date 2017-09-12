@@ -12,9 +12,7 @@
  * limitations under the License.
  */
 
-package org.apache.ambari.server.ldap.service.ads;
-
-import java.util.Map;
+package org.apache.ambari.server.ldap.service.ads.detectors;
 
 import javax.inject.Inject;
 
@@ -22,14 +20,9 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Maps;
+public class UserObjectClassDetector extends OccurranceAndWeightBasedDetector {
 
-public class ObjectClassDetector extends OccurranceAndWeightBasedDetector {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(ObjectClassDetector.class);
-  private Map<String, Integer> occurranceMap = Maps.newHashMap();
-  private Map<String, Integer> weightsMap = Maps.newHashMap();
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(UserObjectClassDetector.class);
 
   private enum ObjectClassValue {
     PERSON("person", 1),
@@ -54,22 +47,12 @@ public class ObjectClassDetector extends OccurranceAndWeightBasedDetector {
   }
 
   @Inject
-  public ObjectClassDetector() {
+  public UserObjectClassDetector() {
     for (ObjectClassValue ocVal : ObjectClassValue.values()) {
-      occurranceMap.put(ocVal.ocVal(), 0);
-      weightsMap.put(ocVal.ocVal(), ocVal.weight());
+      occurranceMap().put(ocVal.ocVal(), 0);
+      weightsMap().put(ocVal.ocVal(), ocVal.weight());
     }
 
-  }
-
-  @Override
-  protected Map<String, Integer> occurranceMap() {
-    return occurranceMap;
-  }
-
-  @Override
-  protected Map<String, Integer> weightsMap() {
-    return weightsMap;
   }
 
   @Override

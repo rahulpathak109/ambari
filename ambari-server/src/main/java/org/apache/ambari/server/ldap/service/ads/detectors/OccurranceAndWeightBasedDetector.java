@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.apache.ambari.server.ldap.service.ads;
+package org.apache.ambari.server.ldap.service.ads.detectors;
 
 import java.util.Map;
 
@@ -21,42 +21,64 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
+
 public abstract class OccurranceAndWeightBasedDetector implements AttributeDetector<Entry> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OccurranceAndWeightBasedDetector.class);
 
-  protected abstract Map<String, Integer> occurranceMap();
+  private Map<String, Integer> occurranceMap = Maps.newHashMap();
+  private Map<String, Integer> weightsMap = Maps.newHashMap();
 
-  protected abstract Map<String, Integer> weightsMap();
+  protected Map<String, Integer> occurranceMap() {
+    return occurranceMap;
+  }
+
+  protected Map<String, Integer> weightsMap() {
+    return weightsMap;
+  }
+
 
   protected abstract boolean applies(Entry entry, String value);
 
   @Override
   public String detect() {
+    LOGGER.info("Calculating the most probable attribute/value ...");
     Map.Entry<String, Integer> selectedEntry = null;
 
     for (Map.Entry<String, Integer> entry : occurranceMap().entrySet()) {
       if (selectedEntry == null) {
 
         selectedEntry = entry;
-        LOGGER.info("Initial name attribute: {}", selectedEntry);
+        LOGGER.debug("Initial attribute / value entry: {}", selectedEntry);
         continue;
 
       }
 
       if (selectedEntry.getValue() < entry.getValue()) {
 
-        LOGGER.info("Changing potential name attribute from : [{}] to: [{}]", selectedEntry, entry);
+        LOGGER.info("Changing potential attribute / value entry from : [{}] to: [{}]", selectedEntry, entry);
         selectedEntry = entry;
 
       }
     }
-    return selectedEntry.getKey();
+
+    // check whether the selected entry is valid (has occured in the sample result set)
+    String detectedVal = "N/A";
+
+    if (selectedEntry.getValue() > 0) {
+      detectedVal = selectedEntry.getKey();
+    } else {
+      LOGGER.warn("Unable to detect attribute or attribute value");
+    }
+
+    LOGGER.info("Detected attribute or value: [{}]", detectedVal);
+    return detectedVal;
   }
 
   @Override
   public void collect(Entry entry) {
-    LOGGER.info("Detecting ldap attributes/values ...");
+    LOGGER.info("Collecting ldap attributes/values form entry with dn: [{]]", entry.getDn());
 
     for (String attributeValue : occurranceMap().keySet()) {
       if (applies(entry, attributeValue)) {

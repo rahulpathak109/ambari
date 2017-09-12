@@ -56,6 +56,7 @@ public class AmbariLdapConfiguration {
 
     USER_OBJECT_CLASS("ambari.ldap.attributes.user.object_class"),
     USER_NAME_ATTRIBUTE("ambari.ldap.attributes.user.name_attr"),
+    USER_GROUP_MEMBER_ATTRIBUTE("ambari.ldap.attributes.user.group_member_attr"),
     USER_SEARCH_BASE("ambari.ldap.attributes.user.search_base"),
 
     GROUP_OBJECT_CLASS("ambari.ldap.attributes.group.object_class"),

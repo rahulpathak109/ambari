@@ -32,6 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class DefaultAttributeDetectionServiceTest {
 
@@ -78,9 +80,12 @@ public class DefaultAttributeDetectionServiceTest {
 
     // WHEN
     AmbariLdapConfiguration config = attributeDetectionService.detectLdapUserAttributes(ldapConnection, ambariLdapConfiguration);
+    config = attributeDetectionService.detectLdapGroupAttributes(ldapConnection, ambariLdapConfiguration);
+
+    Gson gson = new GsonBuilder().create();
+    LOGGER.info(gson.toJson(config));
 
     // THEN
-
     ldapConnection.close();
 
   }
@@ -95,9 +100,8 @@ public class DefaultAttributeDetectionServiceTest {
     ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.BIND_PASSWORD.key(), "password");
     ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.DN_ATTRIBUTE.key(), SchemaConstants.CN_AT);
 
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.USER_OBJECT_CLASS.key(), SchemaConstants.PERSON_OC);
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.USER_NAME_ATTRIBUTE.key(), SchemaConstants.UID_AT);
     ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.USER_SEARCH_BASE.key(), "dc=example,dc=com");
+    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.GROUP_SEARCH_BASE.key(), "dc=example,dc=com");
 
     return ldapPropsMap;
 
