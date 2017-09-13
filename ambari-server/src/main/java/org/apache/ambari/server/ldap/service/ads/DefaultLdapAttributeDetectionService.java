@@ -41,9 +41,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class DefaultAttributeDetectionService implements LdapAttributeDetectionService<LdapConnection> {
+public class DefaultLdapAttributeDetectionService implements LdapAttributeDetectionService<LdapConnection> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultAttributeDetectionService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLdapAttributeDetectionService.class);
   private static final int SAMPLE_RESULT_SIZE = 50;
 
 
@@ -66,7 +66,7 @@ public class DefaultAttributeDetectionService implements LdapAttributeDetectionS
   private GroupMemberAttrDetector groupMemberAttrDetector;
 
   @Inject
-  public DefaultAttributeDetectionService() {
+  public DefaultLdapAttributeDetectionService() {
   }
 
   @Override

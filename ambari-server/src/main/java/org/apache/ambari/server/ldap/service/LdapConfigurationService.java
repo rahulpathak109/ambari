@@ -12,12 +12,12 @@
  * limitations under the License.
  */
 
-package org.apache.ambari.server.ldap;
+package org.apache.ambari.server.ldap.service;
 
 import java.util.Set;
 
 import org.apache.ambari.server.AmbariException;
-import org.apache.ambari.server.ldap.service.AmbariLdapException;
+import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
 import org.apache.directory.ldap.client.api.LdapConnection;
 
 /**

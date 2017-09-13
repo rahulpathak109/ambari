@@ -34,9 +34,9 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class DefaultAttributeDetectionServiceTest {
+public class DefaultLdapAttributeDetectionServiceTest {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultAttributeDetectionServiceTest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLdapAttributeDetectionServiceTest.class);
 
   @Rule
   public EasyMockRule mocks = new EasyMockRule(this);
@@ -45,7 +45,7 @@ public class DefaultAttributeDetectionServiceTest {
   private LdapConnection connection;
 
   @TestSubject
-  private DefaultAttributeDetectionService attributeDetectionService = new DefaultAttributeDetectionService();
+  private DefaultLdapAttributeDetectionService attributeDetectionService = new DefaultLdapAttributeDetectionService();
 
   @Before
   public void before() {

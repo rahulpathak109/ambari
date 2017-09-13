@@ -21,8 +21,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
-import org.apache.ambari.server.ldap.LdapConfigurationService;
 import org.apache.ambari.server.ldap.service.AmbariLdapException;
+import org.apache.ambari.server.ldap.service.LdapConfigurationService;
 import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
@@ -63,7 +63,6 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
 
   }
 
-
   /**
    * Checks the user attributes provided in the configuration instance by issuing a search for a (known) test user in the LDAP.
    * Attributes are considered correct if there is at least one entry found.
@@ -73,7 +72,7 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
    * @param ldapConnection          connection instance used to connect to the LDAP server
    * @param testUserName            the test username
    * @param testPassword            the test password
-   * @param ambariLdapConfiguration configuration instance holding ldap configuration details
+   * @param ambariLdapConfiguration the available LDAP configuration to be validated
    * @return the DN of the test user
    * @throws AmbariLdapException if an error occurs
    */
@@ -122,7 +121,16 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
     return userDn;
   }
 
-
+  /**
+   * Checks whether the provided group related settings are correct.
+   * The algorithm implemented in this method per
+   *
+   * @param ldapConnection          a connecion instance bound to an LDAP server
+   * @param userDn                  a user DN to check
+   * @param ambariLdapConfiguration the available LDAP configuration to be validated
+   * @return
+   * @throws AmbariLdapException
+   */
   @Override
   public Set<String> checkGroupAttributes(LdapConnection ldapConnection, String userDn, AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {
     SearchCursor searchCursor = null;
@@ -144,6 +152,7 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
       searchRequest.setFilter(filter);
       searchRequest.setBase(new Dn(ambariLdapConfiguration.groupSearchBase()));
       searchRequest.setScope(SearchScope.SUBTREE);
+      // attributes to be returned
       searchRequest.addAttributes(ambariLdapConfiguration.groupMemberAttribute(), ambariLdapConfiguration.groupNameAttribute());
 
       // perform the search

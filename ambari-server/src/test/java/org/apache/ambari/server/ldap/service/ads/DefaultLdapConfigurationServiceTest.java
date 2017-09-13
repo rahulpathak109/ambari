@@ -19,7 +19,7 @@ import static org.junit.Assert.assertNotNull;
 import java.util.Map;
 
 import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
-import org.apache.ambari.server.ldap.LdapConfigurationService;
+import org.apache.ambari.server.ldap.service.LdapConfigurationService;
 import org.apache.ambari.server.ldap.service.LdapConnectionService;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;

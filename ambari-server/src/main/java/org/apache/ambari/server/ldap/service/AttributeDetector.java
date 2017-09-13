@@ -16,7 +16,8 @@ package org.apache.ambari.server.ldap.service;
 
 /**
  * Operations for detecting LDAP related settings.
- * Attributes and values are detected based on a sample set of results returned from a search
+ * The basis for the attribute or value detection is a set of entries returned by a search operation.
+ * Individual attribute detector implementations are responsible for detecting a specific set of attributes or values
  */
 public interface AttributeDetector<T> {
 

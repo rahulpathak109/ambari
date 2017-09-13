@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
-import org.apache.ambari.server.ldap.LdapConfigurationService;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,9 +31,12 @@ public class AmbariLdapFacade implements LdapFacade {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AmbariLdapFacade.class);
 
+  /**
+   * Additional parameters expected to be provided along with the configuration
+   */
   private enum Parameters {
-    TEST_USER_NAME("ldap.test.user.name"),
-    TEST_USER_PASSWORD("ldap.test.user.password");
+    TEST_USER_NAME("ambari.ldap.test.user.name"),
+    TEST_USER_PASSWORD("ambari.ldap.test.user.password");
 
     private String parameterKey;
 
@@ -68,6 +70,7 @@ public class AmbariLdapFacade implements LdapFacade {
 
       LOGGER.info("Validating LDAP connection related configuration based on: {}", ambariLdapConfiguration);
       connection = ldapConnectionService.getBoundLdapConnection(ambariLdapConfiguration);
+
       ldapConfigurationService.checkConnection(connection, ambariLdapConfiguration);
       LOGGER.info("Validating LDAP connection related configuration: SUCCESS");
 

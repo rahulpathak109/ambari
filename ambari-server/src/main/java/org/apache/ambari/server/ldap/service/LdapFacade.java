@@ -22,6 +22,9 @@ import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
 /**
  * The contract defining all the operations required by the application when communicating with an arbitrary LDAP server.
  * This interface is intended to decouple LDAP specific details from the application.
+ *
+ * Any operation that requires interaction with an LDAP server from within Ambari should go through this interface.
+ * (LDAP)
  */
 public interface LdapFacade {
 
@@ -35,9 +38,12 @@ public interface LdapFacade {
 
 
   /**
-   * Runs the user and group attribute detection algorithms
+   * Runs the user and group attribute detection algorithms.
+   * The method is not intended to be used as a coniguration factory, the returned instance may not be suitable for use.
    *
-   * @param ambariLdapConfiguration
+   * @param ambariLdapConfiguration partially filled configuration instance to be extended with detected properties
+   * @return a configuration instance, with properties filled with potentially correct values
+   * @throws AmbariLdapException
    */
   AmbariLdapConfiguration detectAttributes(AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException;
 

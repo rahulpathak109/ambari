@@ -19,7 +19,6 @@ import javax.inject.Inject;
 import org.apache.directory.api.ldap.model.entry.Entry;
 
 public class UserGroupMemberAttrDetector extends OccurranceAndWeightBasedDetector {
-  private static String[] userGroupMemAttrValues = {"memberOf", "ismemberOf"};
 
   private enum UserGroupMemberAttr {
 
