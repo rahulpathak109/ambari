@@ -21,7 +21,7 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
+import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

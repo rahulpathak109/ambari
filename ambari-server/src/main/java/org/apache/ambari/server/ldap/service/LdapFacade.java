@@ -17,7 +17,7 @@ package org.apache.ambari.server.ldap.service;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
+import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
 
 /**
  * The contract defining all the operations required by the application when communicating with an arbitrary LDAP server.

@@ -15,6 +15,8 @@
 
 package org.apache.ambari.server.ldap;
 
+import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
+import org.apache.ambari.server.ldap.domain.LdapConfigurationFactory;
 import org.apache.ambari.server.ldap.service.AmbariLdapConfigurationProvider;
 import org.apache.ambari.server.ldap.service.AmbariLdapFacade;
 import org.apache.ambari.server.ldap.service.LdapAttributeDetectionService;

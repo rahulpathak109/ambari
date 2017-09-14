@@ -23,8 +23,8 @@ import javax.inject.Singleton;
 
 import org.apache.ambari.server.events.AmbariLdapConfigChangedEvent;
 import org.apache.ambari.server.events.publishers.AmbariEventPublisher;
-import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
-import org.apache.ambari.server.ldap.LdapConfigurationFactory;
+import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
+import org.apache.ambari.server.ldap.domain.LdapConfigurationFactory;
 import org.apache.ambari.server.orm.dao.AmbariConfigurationDAO;
 import org.apache.ambari.server.orm.entities.AmbariConfigurationEntity;
 import org.apache.ambari.server.security.authorization.AmbariLdapAuthenticationProvider;

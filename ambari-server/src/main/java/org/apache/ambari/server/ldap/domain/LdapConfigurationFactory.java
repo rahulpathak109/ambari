@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.apache.ambari.server.ldap;
+package org.apache.ambari.server.ldap.domain;
 
 import java.util.Map;
 

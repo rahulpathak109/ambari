@@ -20,7 +20,7 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
+import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
 import org.apache.ambari.server.ldap.service.AmbariLdapException;
 import org.apache.ambari.server.ldap.service.LdapConfigurationService;
 import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;

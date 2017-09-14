@@ -14,7 +14,7 @@
 
 package org.apache.ambari.server.ldap.service;
 
-import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
+import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
 import org.apache.directory.ldap.client.api.LdapConnection;
 
 /**

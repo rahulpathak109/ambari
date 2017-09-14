@@ -17,7 +17,8 @@ package org.apache.ambari.server.ldap.service.ads;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
+import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
+import org.apache.ambari.server.ldap.service.AmbariLdapConfigKeys;
 import org.apache.ambari.server.ldap.service.AmbariLdapException;
 import org.apache.ambari.server.ldap.service.LdapAttributeDetectionService;
 import org.apache.ambari.server.ldap.service.ads.detectors.GroupMemberAttrDetector;
@@ -112,9 +113,9 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
         }
       }
 
-      ambariLdapConfiguration.setValueFor(AmbariLdapConfiguration.AmbariLdapConfig.USER_NAME_ATTRIBUTE, userNameAttrDetector.detect());
-      ambariLdapConfiguration.setValueFor(AmbariLdapConfiguration.AmbariLdapConfig.USER_OBJECT_CLASS, userObjectClassDetector.detect());
-      ambariLdapConfiguration.setValueFor(AmbariLdapConfiguration.AmbariLdapConfig.USER_GROUP_MEMBER_ATTRIBUTE, userGroupMemberAttrDetector.detect());
+      ambariLdapConfiguration.setValueFor(AmbariLdapConfigKeys.USER_NAME_ATTRIBUTE, userNameAttrDetector.detect());
+      ambariLdapConfiguration.setValueFor(AmbariLdapConfigKeys.USER_OBJECT_CLASS, userObjectClassDetector.detect());
+      ambariLdapConfiguration.setValueFor(AmbariLdapConfigKeys.USER_GROUP_MEMBER_ATTRIBUTE, userGroupMemberAttrDetector.detect());
 
       LOGGER.info("Decorated ambari ldap config : [{}]", ambariLdapConfiguration);
 
@@ -177,9 +178,9 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
         }
       }
 
-      ambariLdapConfiguration.setValueFor(AmbariLdapConfiguration.AmbariLdapConfig.GROUP_NAME_ATTRIBUTE, groupNameAttrDetector.detect());
-      ambariLdapConfiguration.setValueFor(AmbariLdapConfiguration.AmbariLdapConfig.GROUP_OBJECT_CLASS, groupObjectClassDetector.detect());
-      ambariLdapConfiguration.setValueFor(AmbariLdapConfiguration.AmbariLdapConfig.GROUP_MEMBER_ATTRIBUTE, groupMemberAttrDetector.detect());
+      ambariLdapConfiguration.setValueFor(AmbariLdapConfigKeys.GROUP_NAME_ATTRIBUTE, groupNameAttrDetector.detect());
+      ambariLdapConfiguration.setValueFor(AmbariLdapConfigKeys.GROUP_OBJECT_CLASS, groupObjectClassDetector.detect());
+      ambariLdapConfiguration.setValueFor(AmbariLdapConfigKeys.GROUP_MEMBER_ATTRIBUTE, groupMemberAttrDetector.detect());
 
       LOGGER.info("Decorated ambari ldap config : [{}]", ambariLdapConfiguration);
 

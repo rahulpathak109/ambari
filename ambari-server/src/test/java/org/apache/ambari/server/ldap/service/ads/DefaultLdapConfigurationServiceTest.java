@@ -18,7 +18,8 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.Map;
 
-import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
+import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
+import org.apache.ambari.server.ldap.service.AmbariLdapConfigKeys;
 import org.apache.ambari.server.ldap.service.LdapConfigurationService;
 import org.apache.ambari.server.ldap.service.LdapConnectionService;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -74,14 +75,14 @@ public class DefaultLdapConfigurationServiceTest {
     // GIVEN
     Map<String, Object> ldapPropsMap = Maps.newHashMap();
 
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.ANONYMOUS_BIND.key(), "true");
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.SERVER_HOST.key(), "ldap.forumsys.com");
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.SERVER_PORT.key(), "389");
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.BIND_DN.key(), "dc=example,dc=com");
+    ldapPropsMap.put(AmbariLdapConfigKeys.ANONYMOUS_BIND.key(), "true");
+    ldapPropsMap.put(AmbariLdapConfigKeys.SERVER_HOST.key(), "ldap.forumsys.com");
+    ldapPropsMap.put(AmbariLdapConfigKeys.SERVER_PORT.key(), "389");
+    ldapPropsMap.put(AmbariLdapConfigKeys.BIND_DN.key(), "dc=example,dc=com");
 
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.USER_OBJECT_CLASS.key(), SchemaConstants.PERSON_OC);
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.USER_NAME_ATTRIBUTE.key(), SchemaConstants.UID_AT);
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.USER_SEARCH_BASE.key(), "dc=example,dc=com");
+    ldapPropsMap.put(AmbariLdapConfigKeys.USER_OBJECT_CLASS.key(), SchemaConstants.PERSON_OC);
+    ldapPropsMap.put(AmbariLdapConfigKeys.USER_NAME_ATTRIBUTE.key(), SchemaConstants.UID_AT);
+    ldapPropsMap.put(AmbariLdapConfigKeys.USER_SEARCH_BASE.key(), "dc=example,dc=com");
 
 
     AmbariLdapConfiguration ambariLdapConfiguration = new AmbariLdapConfiguration(ldapPropsMap);
@@ -96,14 +97,14 @@ public class DefaultLdapConfigurationServiceTest {
     // GIVEN
     Map<String, Object> ldapPropsMap = Maps.newHashMap();
 
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.ANONYMOUS_BIND.key(), "true");
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.SERVER_HOST.key(), "ldap.forumsys.com");
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.SERVER_PORT.key(), "389");
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.BIND_DN.key(), "dc=example,dc=com");
+    ldapPropsMap.put(AmbariLdapConfigKeys.ANONYMOUS_BIND.key(), "true");
+    ldapPropsMap.put(AmbariLdapConfigKeys.SERVER_HOST.key(), "ldap.forumsys.com");
+    ldapPropsMap.put(AmbariLdapConfigKeys.SERVER_PORT.key(), "389");
+    ldapPropsMap.put(AmbariLdapConfigKeys.BIND_DN.key(), "dc=example,dc=com");
 
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.USER_OBJECT_CLASS.key(), SchemaConstants.PERSON_OC);
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.USER_NAME_ATTRIBUTE.key(), SchemaConstants.UID_AT);
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.USER_SEARCH_BASE.key(), "dc=example,dc=com");
+    ldapPropsMap.put(AmbariLdapConfigKeys.USER_OBJECT_CLASS.key(), SchemaConstants.PERSON_OC);
+    ldapPropsMap.put(AmbariLdapConfigKeys.USER_NAME_ATTRIBUTE.key(), SchemaConstants.UID_AT);
+    ldapPropsMap.put(AmbariLdapConfigKeys.USER_SEARCH_BASE.key(), "dc=example,dc=com");
 
 
     AmbariLdapConfiguration ambariLdapConfiguration = new AmbariLdapConfiguration(ldapPropsMap);

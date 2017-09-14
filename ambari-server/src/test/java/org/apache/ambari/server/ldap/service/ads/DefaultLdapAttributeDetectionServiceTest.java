@@ -17,7 +17,8 @@ package org.apache.ambari.server.ldap.service.ads;
 
 import java.util.Map;
 
-import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
+import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
+import org.apache.ambari.server.ldap.service.AmbariLdapConfigKeys;
 import org.apache.ambari.server.ldap.service.LdapConnectionService;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -51,7 +52,7 @@ public class DefaultLdapAttributeDetectionServiceTest {
   public void before() {
 
     Map<String, Object> initialProps = Maps.newHashMap();
-    initialProps.put(AmbariLdapConfiguration.AmbariLdapConfig.BIND_DN.key(), "");
+    initialProps.put(AmbariLdapConfigKeys.BIND_DN.key(), "");
     testLdapConfiguration = new AmbariLdapConfiguration(initialProps);
   }
 
@@ -92,15 +93,15 @@ public class DefaultLdapAttributeDetectionServiceTest {
   private Map<String, Object> getTestPropertiesMap() {
     Map<String, Object> ldapPropsMap = Maps.newHashMap();
 
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.ANONYMOUS_BIND.key(), "true");
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.SERVER_HOST.key(), "ldap.forumsys.com");
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.SERVER_PORT.key(), "389");
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.BIND_DN.key(), "cn=read-only-admin,dc=example,dc=com");
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.BIND_PASSWORD.key(), "password");
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.DN_ATTRIBUTE.key(), SchemaConstants.CN_AT);
+    ldapPropsMap.put(AmbariLdapConfigKeys.ANONYMOUS_BIND.key(), "true");
+    ldapPropsMap.put(AmbariLdapConfigKeys.SERVER_HOST.key(), "ldap.forumsys.com");
+    ldapPropsMap.put(AmbariLdapConfigKeys.SERVER_PORT.key(), "389");
+    ldapPropsMap.put(AmbariLdapConfigKeys.BIND_DN.key(), "cn=read-only-admin,dc=example,dc=com");
+    ldapPropsMap.put(AmbariLdapConfigKeys.BIND_PASSWORD.key(), "password");
+    ldapPropsMap.put(AmbariLdapConfigKeys.DN_ATTRIBUTE.key(), SchemaConstants.CN_AT);
 
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.USER_SEARCH_BASE.key(), "dc=example,dc=com");
-    ldapPropsMap.put(AmbariLdapConfiguration.AmbariLdapConfig.GROUP_SEARCH_BASE.key(), "dc=example,dc=com");
+    ldapPropsMap.put(AmbariLdapConfigKeys.USER_SEARCH_BASE.key(), "dc=example,dc=com");
+    ldapPropsMap.put(AmbariLdapConfigKeys.GROUP_SEARCH_BASE.key(), "dc=example,dc=com");
 
     return ldapPropsMap;
 

@@ -14,7 +14,7 @@
 
 package org.apache.ambari.server.ldap.service;
 
-import org.apache.ambari.server.ldap.AmbariLdapConfiguration;
+import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
 
 /**
  * Contract defining operations to detect user and group attributes.
