@@ -14,21 +14,16 @@
 
 package org.apache.ambari.server.ldap.domain;
 
+
 import java.util.Map;
 
 /**
- * Factory interface for AmbariLdapConfiguration instances.
- * It's registered as a factory in the GUICE context (so no implementations required)
- *
- * To be extended with other factory methods upon needs.
+ * Implementation used for testing purposes only!
  */
-public interface LdapConfigurationFactory {
+public class TestAmbariLdapConfigurationFactory implements LdapConfigurationFactory {
 
-  /**
-   * Creates an AmbariLdapConfiguration instance with the provided map of configuration settings.
-   *
-   * @param configuration a map where keys are the configuration properties and values are the configuration values
-   * @return an AmbariLdapConfiguration instance
-   */
-  AmbariLdapConfiguration createLdapConfiguration(Map<String, Object> configuration);
+  @Override
+  public AmbariLdapConfiguration createLdapConfiguration(Map<String, Object> configuration) {
+    return new AmbariLdapConfiguration(configuration);
+  }
 }

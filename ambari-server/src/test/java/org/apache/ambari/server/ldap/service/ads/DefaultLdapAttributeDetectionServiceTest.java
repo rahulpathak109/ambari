@@ -17,8 +17,9 @@ package org.apache.ambari.server.ldap.service.ads;
 
 import java.util.Map;
 
+import org.apache.ambari.server.ldap.domain.AmbariLdapConfigKeys;
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
-import org.apache.ambari.server.ldap.service.AmbariLdapConfigKeys;
+import org.apache.ambari.server.ldap.domain.TestAmbariLdapConfigurationFactory;
 import org.apache.ambari.server.ldap.service.LdapConnectionService;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -43,6 +44,8 @@ public class DefaultLdapAttributeDetectionServiceTest {
   public EasyMockRule mocks = new EasyMockRule(this);
 
   private AmbariLdapConfiguration testLdapConfiguration;
+  private TestAmbariLdapConfigurationFactory ldapConfigurationFactory = new TestAmbariLdapConfigurationFactory();
+
   private LdapConnection connection;
 
   @TestSubject
@@ -53,7 +56,7 @@ public class DefaultLdapAttributeDetectionServiceTest {
 
     Map<String, Object> initialProps = Maps.newHashMap();
     initialProps.put(AmbariLdapConfigKeys.BIND_DN.key(), "");
-    testLdapConfiguration = new AmbariLdapConfiguration(initialProps);
+    testLdapConfiguration = ldapConfigurationFactory.createLdapConfiguration(initialProps);
   }
 
   @Test
@@ -74,7 +77,7 @@ public class DefaultLdapAttributeDetectionServiceTest {
   @Test
   public void functionalTest() throws Exception {
     // GIVEN
-    AmbariLdapConfiguration ambariLdapConfiguration = new AmbariLdapConfiguration(getTestPropertiesMap());
+    AmbariLdapConfiguration ambariLdapConfiguration = ldapConfigurationFactory.createLdapConfiguration(getTestPropertiesMap());
     LdapConnectionService connectionService = new DefaultLdapConnectionService();
     LdapConnection ldapConnection = connectionService.createLdapConnection(ambariLdapConfiguration);
 

@@ -17,8 +17,8 @@ package org.apache.ambari.server.ldap.service.ads;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.apache.ambari.server.ldap.domain.AmbariLdapConfigKeys;
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
-import org.apache.ambari.server.ldap.service.AmbariLdapConfigKeys;
 import org.apache.ambari.server.ldap.service.AmbariLdapException;
 import org.apache.ambari.server.ldap.service.LdapAttributeDetectionService;
 import org.apache.ambari.server.ldap.service.ads.detectors.GroupMemberAttrDetector;

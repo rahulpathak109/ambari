@@ -18,9 +18,7 @@ package org.apache.ambari.server.ldap.domain;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
-import org.apache.ambari.server.ldap.service.AmbariLdapConfigKeys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +27,6 @@ import com.google.inject.assistedinject.Assisted;
 /**
  * This class is an immutable representation of all the LDAP related configurationMap entries.
  */
-@Singleton
 public class AmbariLdapConfiguration {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AmbariLdapConfiguration.class);

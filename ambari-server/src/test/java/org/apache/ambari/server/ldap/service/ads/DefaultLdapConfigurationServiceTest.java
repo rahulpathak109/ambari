@@ -18,8 +18,9 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.Map;
 
+import org.apache.ambari.server.ldap.domain.AmbariLdapConfigKeys;
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
-import org.apache.ambari.server.ldap.service.AmbariLdapConfigKeys;
+import org.apache.ambari.server.ldap.domain.TestAmbariLdapConfigurationFactory;
 import org.apache.ambari.server.ldap.service.LdapConfigurationService;
 import org.apache.ambari.server.ldap.service.LdapConnectionService;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -39,6 +40,8 @@ import com.google.common.collect.Maps;
 public class DefaultLdapConfigurationServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLdapConfigurationService.class);
   private static final String TEST_USER = "einstein";
+
+  private TestAmbariLdapConfigurationFactory ldapConfigurationFactory = new TestAmbariLdapConfigurationFactory();
 
   LdapConfigurationService ldapConfigurationService = new DefaultLdapConfigurationService();
 
@@ -85,7 +88,7 @@ public class DefaultLdapConfigurationServiceTest {
     ldapPropsMap.put(AmbariLdapConfigKeys.USER_SEARCH_BASE.key(), "dc=example,dc=com");
 
 
-    AmbariLdapConfiguration ambariLdapConfiguration = new AmbariLdapConfiguration(ldapPropsMap);
+    AmbariLdapConfiguration ambariLdapConfiguration = ldapConfigurationFactory.createLdapConfiguration(ldapPropsMap);
     LdapConnectionService connectionService = new DefaultLdapConnectionService();
     LdapConnection ldapConnection = connectionService.createLdapConnection(ambariLdapConfiguration);
 
@@ -107,10 +110,20 @@ public class DefaultLdapConfigurationServiceTest {
     ldapPropsMap.put(AmbariLdapConfigKeys.USER_SEARCH_BASE.key(), "dc=example,dc=com");
 
 
-    AmbariLdapConfiguration ambariLdapConfiguration = new AmbariLdapConfiguration(ldapPropsMap);
+    AmbariLdapConfiguration ambariLdapConfiguration = ldapConfigurationFactory.createLdapConfiguration(ldapPropsMap);
     LdapConnectionService connectionService = new DefaultLdapConnectionService();
     LdapConnection ldapConnection = connectionService.createLdapConnection(ambariLdapConfiguration);
 
     ldapConfigurationService.checkGroupAttributes(ldapConnection, "uid=einstein,dc=example,dc=com", ambariLdapConfiguration);
+  }
+
+  @Test
+  public void testListSupportedProperties(){
+    StringBuilder sb = new StringBuilder().append(System.lineSeparator());
+    for (AmbariLdapConfigKeys configKey : AmbariLdapConfigKeys.values()) {
+      sb.append(configKey.key()).append(System.lineSeparator());
+    }
+    LOGGER.info(sb.toString());
+
   }
 }

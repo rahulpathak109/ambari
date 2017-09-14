@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.apache.ambari.server.ldap.service;
+package org.apache.ambari.server.ldap.domain;
 
 /**
  * Constants representing supported LDAP related property names
