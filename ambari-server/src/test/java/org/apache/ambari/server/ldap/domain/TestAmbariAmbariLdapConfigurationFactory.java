@@ -14,6 +14,16 @@
 
 package org.apache.ambari.server.ldap.domain;
 
-public class AmbariLdapConfigurationTest {
 
+import java.util.Map;
+
+/**
+ * Implementation used for testing purposes only!
+ */
+public class TestAmbariAmbariLdapConfigurationFactory implements AmbariLdapConfigurationFactory {
+
+  @Override
+  public AmbariLdapConfiguration createLdapConfiguration(Map<String, Object> configuration) {
+    return new AmbariLdapConfiguration(configuration);
+  }
 }

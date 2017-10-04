@@ -20,7 +20,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UserNameAttrDetector extends OccurranceAndWeightBasedDetector {
+public class UserNameAttrDetector extends OccurrenceAndWeightBasedDetector {
   private static final Logger LOGGER = LoggerFactory.getLogger(UserNameAttrDetector.class);
 
   private enum UserNameAttrs {
@@ -49,7 +49,7 @@ public class UserNameAttrDetector extends OccurranceAndWeightBasedDetector {
   @Inject
   public UserNameAttrDetector() {
     for (UserNameAttrs nameAttr : UserNameAttrs.values()) {
-      occurranceMap().put(nameAttr.attrName(), 0);
+      occurrenceMap().put(nameAttr.attrName(), 0);
       weightsMap().put(nameAttr.attrName(), nameAttr.weight());
     }
   }

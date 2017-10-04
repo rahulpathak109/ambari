@@ -20,7 +20,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GroupNameAttrDetector extends OccurranceAndWeightBasedDetector {
+public class GroupNameAttrDetector extends OccurrenceAndWeightBasedDetector {
   private static final Logger LOGGER = LoggerFactory.getLogger(UserNameAttrDetector.class);
 
   private enum GroupNameAttr {
@@ -51,7 +51,7 @@ public class GroupNameAttrDetector extends OccurranceAndWeightBasedDetector {
   public GroupNameAttrDetector() {
 
     for (GroupNameAttr groupNameAttr : GroupNameAttr.values()) {
-      occurranceMap().put(groupNameAttr.attrName(), 0);
+      occurrenceMap().put(groupNameAttr.attrName(), 0);
       weightsMap().put(groupNameAttr.attrName(), groupNameAttr.weight());
     }
   }

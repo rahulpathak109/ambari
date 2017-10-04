@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
-import org.apache.directory.ldap.client.api.LdapConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,9 +53,6 @@ public class AmbariLdapFacade implements LdapFacade {
   private LdapConfigurationService ldapConfigurationService;
 
   @Inject
-  private LdapConnectionService ldapConnectionService;
-
-  @Inject
   private LdapAttributeDetectionService ldapAttributeDetectionService;
 
   @Inject
@@ -65,13 +61,8 @@ public class AmbariLdapFacade implements LdapFacade {
 
   @Override
   public void checkConnection(AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {
-    LdapConnection connection = null;
     try {
-
-      LOGGER.info("Validating LDAP connection related configuration based on: {}", ambariLdapConfiguration);
-      connection = ldapConnectionService.getBoundLdapConnection(ambariLdapConfiguration);
-
-      ldapConfigurationService.checkConnection(connection, ambariLdapConfiguration);
+      ldapConfigurationService.checkConnection(ambariLdapConfiguration);
       LOGGER.info("Validating LDAP connection related configuration: SUCCESS");
 
     } catch (Exception e) {
@@ -79,13 +70,6 @@ public class AmbariLdapFacade implements LdapFacade {
       LOGGER.error("Validating LDAP connection configuration failed", e);
       throw new AmbariLdapException(e);
 
-    } finally {
-      try {
-        connection.unBind();
-        connection.close();
-      } catch (Exception e) {
-        throw new AmbariLdapException(e);
-      }
     }
 
   }
@@ -95,14 +79,13 @@ public class AmbariLdapFacade implements LdapFacade {
   public AmbariLdapConfiguration detectAttributes(AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {
     LOGGER.info("Detecting LDAP configuration attributes ...");
 
-    LdapConnection connection = ldapConnectionService.getBoundLdapConnection(ambariLdapConfiguration);
     try {
 
       // decorate the configuration with detected user attributes
-      ambariLdapConfiguration = ldapAttributeDetectionService.detectLdapUserAttributes(connection, ambariLdapConfiguration);
+      ambariLdapConfiguration = ldapAttributeDetectionService.detectLdapUserAttributes(ambariLdapConfiguration);
 
       // decorate the configuration with detected group attributes
-      ambariLdapConfiguration = ldapAttributeDetectionService.detectLdapGroupAttributes(connection, ambariLdapConfiguration);
+      ambariLdapConfiguration = ldapAttributeDetectionService.detectLdapGroupAttributes(ambariLdapConfiguration);
       return ambariLdapConfiguration;
 
     } catch (Exception e) {
@@ -110,13 +93,6 @@ public class AmbariLdapFacade implements LdapFacade {
       LOGGER.error("Error during LDAP attribute detection", e);
       throw new AmbariLdapException(e);
 
-    } finally {
-      try {
-        connection.unBind();
-        connection.close();
-      } catch (Exception e) {
-        throw new AmbariLdapException(e);
-      }
     }
   }
 
@@ -129,14 +105,12 @@ public class AmbariLdapFacade implements LdapFacade {
       throw new IllegalArgumentException("No test user available for testing LDAP attributes");
     }
 
-    LdapConnection ldapConnection = ldapConnectionService.getBoundLdapConnection(ldapConfiguration);
-
     LOGGER.info("Testing LDAP user attributes with test user: {}", userName);
-    String userDn = ldapConfigurationService.checkUserAttributes(ldapConnection, userName, testUserPass, ldapConfiguration);
+    String userDn = ldapConfigurationService.checkUserAttributes(userName, testUserPass, ldapConfiguration);
 
     // todo handle the case where group membership is stored in the user rather than the group
     LOGGER.info("Testing LDAP group attributes with test user dn: {}", userDn);
-    Set<String> groups = ldapConfigurationService.checkGroupAttributes(ldapConnection, userDn, ldapConfiguration);
+    Set<String> groups = ldapConfigurationService.checkGroupAttributes(userDn, ldapConfiguration);
 
     return groups;
   }

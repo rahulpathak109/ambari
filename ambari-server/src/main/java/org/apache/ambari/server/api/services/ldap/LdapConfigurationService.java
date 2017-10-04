@@ -47,7 +47,7 @@ import org.apache.ambari.server.api.services.ResultStatus;
 import org.apache.ambari.server.controller.internal.ResourceImpl;
 import org.apache.ambari.server.controller.spi.Resource;
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
-import org.apache.ambari.server.ldap.domain.LdapConfigurationFactory;
+import org.apache.ambari.server.ldap.domain.AmbariLdapConfigurationFactory;
 import org.apache.ambari.server.ldap.service.LdapFacade;
 import org.apache.ambari.server.security.authorization.AuthorizationException;
 import org.apache.ambari.server.security.authorization.AuthorizationHelper;
@@ -72,7 +72,7 @@ public class LdapConfigurationService extends AmbariConfigurationService {
   private static LdapFacade ldapFacade;
 
   @Inject
-  private static LdapConfigurationFactory ldapConfigurationFactory;
+  private static AmbariLdapConfigurationFactory ambariLdapConfigurationFactory;
 
 
   @POST
@@ -93,7 +93,7 @@ public class LdapConfigurationService extends AmbariConfigurationService {
 
       validateRequest(ldapConfigurationRequest);
 
-      AmbariLdapConfiguration ambariLdapConfiguration = ldapConfigurationFactory.createLdapConfiguration(
+      AmbariLdapConfiguration ambariLdapConfiguration = ambariLdapConfigurationFactory.createLdapConfiguration(
         ldapConfigurationRequest.getAmbariConfiguration().getData().iterator().next());
 
       LdapConfigOperation action = LdapConfigOperation.fromAction(ldapConfigurationRequest.getRequestInfo().getAction());

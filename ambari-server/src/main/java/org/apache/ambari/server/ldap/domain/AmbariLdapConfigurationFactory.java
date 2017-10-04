@@ -22,7 +22,7 @@ import java.util.Map;
  *
  * To be extended with other factory methods upon needs.
  */
-public interface LdapConfigurationFactory {
+public interface AmbariLdapConfigurationFactory {
 
   /**
    * Creates an AmbariLdapConfiguration instance with the provided map of configuration settings.

@@ -24,7 +24,7 @@ import javax.inject.Singleton;
 import org.apache.ambari.server.events.AmbariLdapConfigChangedEvent;
 import org.apache.ambari.server.events.publishers.AmbariEventPublisher;
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
-import org.apache.ambari.server.ldap.domain.LdapConfigurationFactory;
+import org.apache.ambari.server.ldap.domain.AmbariLdapConfigurationFactory;
 import org.apache.ambari.server.orm.dao.AmbariConfigurationDAO;
 import org.apache.ambari.server.orm.entities.AmbariConfigurationEntity;
 import org.apache.ambari.server.security.authorization.AmbariLdapAuthenticationProvider;
@@ -57,7 +57,7 @@ public class AmbariLdapConfigurationProvider implements Provider<AmbariLdapConfi
   private Provider<AmbariConfigurationDAO> ambariConfigurationDAOProvider;
 
   @Inject
-  private LdapConfigurationFactory ldapConfigurationFactory;
+  private AmbariLdapConfigurationFactory ldapConfigurationFactory;
 
   private Gson gson = new GsonBuilder().create();
 
@@ -107,6 +107,7 @@ public class AmbariLdapConfigurationProvider implements Provider<AmbariLdapConfi
     return instance;
   }
 
+  // On changing the configuration, the provider gets updated with the fresh value
   @Subscribe
   public void ambariLdapConfigChanged(AmbariLdapConfigChangedEvent event) {
     LOGGER.info("LDAP config changed event received: {}", event);

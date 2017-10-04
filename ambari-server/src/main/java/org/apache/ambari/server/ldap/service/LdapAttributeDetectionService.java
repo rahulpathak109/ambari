@@ -19,24 +19,22 @@ import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
 /**
  * Contract defining operations to detect user and group attributes.
  */
-public interface LdapAttributeDetectionService<T> {
+public interface LdapAttributeDetectionService {
 
   /**
    * Decorates the passed in configuration with the detected ldap user attribute values
    *
-   * @param ldapConnection          the connection instance to LDAP
    * @param ambariLdapConfiguration configuration instance holding connection details
    * @return the configuration decorated with user related attributes
    */
-  AmbariLdapConfiguration detectLdapUserAttributes(T ldapConnection, AmbariLdapConfiguration ambariLdapConfiguration);
+  AmbariLdapConfiguration detectLdapUserAttributes(AmbariLdapConfiguration ambariLdapConfiguration);
 
   /**
    * Decorates the passed in configuration with the detected ldap group attribute values
    *
-   * @param ldapConnection          the connection instance to LDAP
    * @param ambariLdapConfiguration configuration instance holding connection details
    * @return the configuration decorated with group related attributes
    */
-  AmbariLdapConfiguration detectLdapGroupAttributes(T ldapConnection, AmbariLdapConfiguration ambariLdapConfiguration);
+  AmbariLdapConfiguration detectLdapGroupAttributes(AmbariLdapConfiguration ambariLdapConfiguration);
 }
 

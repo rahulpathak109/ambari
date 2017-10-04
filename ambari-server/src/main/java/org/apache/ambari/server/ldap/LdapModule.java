@@ -16,16 +16,16 @@
 package org.apache.ambari.server.ldap;
 
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
-import org.apache.ambari.server.ldap.domain.LdapConfigurationFactory;
+import org.apache.ambari.server.ldap.domain.AmbariLdapConfigurationFactory;
 import org.apache.ambari.server.ldap.service.AmbariLdapConfigurationProvider;
 import org.apache.ambari.server.ldap.service.AmbariLdapFacade;
 import org.apache.ambari.server.ldap.service.LdapAttributeDetectionService;
 import org.apache.ambari.server.ldap.service.LdapConfigurationService;
-import org.apache.ambari.server.ldap.service.LdapConnectionService;
+import org.apache.ambari.server.ldap.service.LdapConnectionTemplateProvider;
 import org.apache.ambari.server.ldap.service.LdapFacade;
 import org.apache.ambari.server.ldap.service.ads.DefaultLdapAttributeDetectionService;
 import org.apache.ambari.server.ldap.service.ads.DefaultLdapConfigurationService;
-import org.apache.ambari.server.ldap.service.ads.DefaultLdapConnectionService;
+import org.apache.directory.ldap.client.template.LdapConnectionTemplate;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
@@ -39,12 +39,14 @@ public class LdapModule extends AbstractModule {
   protected void configure() {
     bind(LdapFacade.class).to(AmbariLdapFacade.class);
     bind(LdapConfigurationService.class).to(DefaultLdapConfigurationService.class);
-    bind(LdapConnectionService.class).to(DefaultLdapConnectionService.class);
     bind(LdapAttributeDetectionService.class).to(DefaultLdapAttributeDetectionService.class);
 
     // this binding requires the JPA module!
     bind(AmbariLdapConfiguration.class).toProvider(AmbariLdapConfigurationProvider.class);
 
-    install(new FactoryModuleBuilder().build(LdapConfigurationFactory.class));
+    // bind to the provider implementation (let GUICE deal with instantiating 3rd party instances)
+    bind(LdapConnectionTemplate.class).toProvider(LdapConnectionTemplateProvider.class);
+
+    install(new FactoryModuleBuilder().build(AmbariLdapConfigurationFactory.class));
   }
 }

@@ -18,7 +18,7 @@ import javax.inject.Inject;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
 
-public class GroupMemberAttrDetector extends OccurranceAndWeightBasedDetector {
+public class GroupMemberAttrDetector extends OccurrenceAndWeightBasedDetector {
 
   private enum GroupMemberAttr {
 
@@ -47,7 +47,7 @@ public class GroupMemberAttrDetector extends OccurranceAndWeightBasedDetector {
   @Inject
   public GroupMemberAttrDetector() {
     for (GroupMemberAttr groupMemberAttr : GroupMemberAttr.values()) {
-      occurranceMap().put(groupMemberAttr.attrName(), 0);
+      occurrenceMap().put(groupMemberAttr.attrName(), 0);
       weightsMap().put(groupMemberAttr.attrName(), groupMemberAttr.weight());
     }
   }

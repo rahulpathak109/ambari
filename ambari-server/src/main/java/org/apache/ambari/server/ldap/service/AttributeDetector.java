@@ -29,7 +29,7 @@ public interface AttributeDetector<T> {
   void collect(T entry);
 
   /**
-   * Implements the decision based on whiche the "best" possible attribute or value is selected.
+   * Implements the decision based on which the "best" possible attribute or value is selected.
    *
    * @return the most probable attribute name or value (based on the logic in the implementer)
    */

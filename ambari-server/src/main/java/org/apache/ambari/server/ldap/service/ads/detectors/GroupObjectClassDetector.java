@@ -20,7 +20,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GroupObjectClassDetector extends OccurranceAndWeightBasedDetector {
+public class GroupObjectClassDetector extends OccurrenceAndWeightBasedDetector {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GroupObjectClassDetector.class);
 
@@ -55,7 +55,7 @@ public class GroupObjectClassDetector extends OccurranceAndWeightBasedDetector {
   @Inject
   public GroupObjectClassDetector() {
     for (ObjectClassValue ocVal : ObjectClassValue.values()) {
-      occurranceMap().put(ocVal.ocVal(), 0);
+      occurrenceMap().put(ocVal.ocVal(), 0);
       weightsMap().put(ocVal.ocVal(), ocVal.weight());
     }
   }

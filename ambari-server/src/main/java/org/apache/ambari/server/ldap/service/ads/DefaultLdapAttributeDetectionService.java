@@ -14,6 +14,8 @@
 
 package org.apache.ambari.server.ldap.service.ads;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -27,26 +29,22 @@ import org.apache.ambari.server.ldap.service.ads.detectors.GroupObjectClassDetec
 import org.apache.ambari.server.ldap.service.ads.detectors.UserGroupMemberAttrDetector;
 import org.apache.ambari.server.ldap.service.ads.detectors.UserNameAttrDetector;
 import org.apache.ambari.server.ldap.service.ads.detectors.UserObjectClassDetector;
-import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.message.Response;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
-import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
-import org.apache.directory.api.ldap.model.message.SearchResultEntry;
 import org.apache.directory.api.ldap.model.message.SearchScope;
-import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Strings;
-import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.search.FilterBuilder;
+import org.apache.directory.ldap.client.template.EntryMapper;
+import org.apache.directory.ldap.client.template.LdapConnectionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class DefaultLdapAttributeDetectionService implements LdapAttributeDetectionService<LdapConnection> {
+public class DefaultLdapAttributeDetectionService implements LdapAttributeDetectionService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLdapAttributeDetectionService.class);
   private static final int SAMPLE_RESULT_SIZE = 50;
-
 
   @Inject
   private UserNameAttrDetector userNameAttrDetector;
@@ -67,12 +65,18 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
   private GroupMemberAttrDetector groupMemberAttrDetector;
 
   @Inject
+  private LdapConnectionTemplateFactory ldapConnectionTemplateFactory;
+
+
+  @Inject
   public DefaultLdapAttributeDetectionService() {
   }
 
   @Override
-  public AmbariLdapConfiguration detectLdapUserAttributes(LdapConnection connection, AmbariLdapConfiguration ambariLdapConfiguration) {
+  public AmbariLdapConfiguration detectLdapUserAttributes(AmbariLdapConfiguration ambariLdapConfiguration) {
     LOGGER.info("Detecting LDAP user attributes ...");
+    LdapConnectionTemplate ldapConnectionTemplate = ldapConnectionTemplateFactory.create(ambariLdapConfiguration);
+
 
     // perform a search using the user search base
     if (Strings.isEmpty(ambariLdapConfiguration.userSearchBase())) {
@@ -80,37 +84,21 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
       return ambariLdapConfiguration;
     }
 
-    SearchCursor searchCursor = null;
-
     try {
 
-      SearchRequest searchRequest = assembleUserSearchRequest(ambariLdapConfiguration);
+      SearchRequest searchRequest = assembleUserSearchRequest(ldapConnectionTemplate, ambariLdapConfiguration);
 
       // do the search
-      searchCursor = connection.search(searchRequest);
+      List<Entry> entries = ldapConnectionTemplate.search(searchRequest, getEntryMapper());
 
-      int processedUserCnt = 0;
+      for (Entry entry : entries) {
 
-      while (searchCursor.next()) {
+        LOGGER.info("Processing sample entry with dn: [{}]", entry.getDn());
 
-        if (processedUserCnt >= SAMPLE_RESULT_SIZE) {
-          LOGGER.debug("The maximum count of results for attribute detection has exceeded. Quit user attribute detection.");
-          break;
-        }
+        userNameAttrDetector.collect(entry);
+        userObjectClassDetector.collect(entry);
+        userGroupMemberAttrDetector.collect(entry);
 
-        Response response = searchCursor.get();
-        // process the SearchResultEntry
-
-        if (response instanceof SearchResultEntry) {
-          Entry resultEntry = ((SearchResultEntry) response).getEntry();
-          LOGGER.info("Processing sample entry with dn: [{}]", resultEntry.getDn());
-
-          userNameAttrDetector.collect(resultEntry);
-          userObjectClassDetector.collect(resultEntry);
-          userGroupMemberAttrDetector.collect(resultEntry);
-
-          processedUserCnt++;
-        }
       }
 
       ambariLdapConfiguration.setValueFor(AmbariLdapConfigKeys.USER_NAME_ATTRIBUTE, userNameAttrDetector.detect());
@@ -120,13 +108,7 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
       LOGGER.info("Decorated ambari ldap config : [{}]", ambariLdapConfiguration);
 
     } catch (Exception e) {
-
       LOGGER.error("Ldap operation failed", e);
-    } finally {
-      // housekeeping
-      if (null != searchCursor) {
-        searchCursor.close();
-      }
     }
 
     return ambariLdapConfiguration;
@@ -134,7 +116,7 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
 
 
   @Override
-  public AmbariLdapConfiguration detectLdapGroupAttributes(LdapConnection connection, AmbariLdapConfiguration ambariLdapConfiguration) {
+  public AmbariLdapConfiguration detectLdapGroupAttributes(AmbariLdapConfiguration ambariLdapConfiguration) {
     LOGGER.info("Detecting LDAP group attributes ...");
 
     // perform a search using the user search base
@@ -143,39 +125,23 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
       return ambariLdapConfiguration;
     }
 
-    SearchCursor searchCursor = null;
+    LdapConnectionTemplate ldapConnectionTemplate = ldapConnectionTemplateFactory.create(ambariLdapConfiguration);
 
     try {
-      // todo should the bind operation be done in the facade?
-      connection.bind(ambariLdapConfiguration.bindDn(), ambariLdapConfiguration.bindPassword());
 
-      SearchRequest searchRequest = assembleGroupSearchRequest(ambariLdapConfiguration);
+      SearchRequest searchRequest = assembleGroupSearchRequest(ldapConnectionTemplate, ambariLdapConfiguration);
 
       // do the search
-      searchCursor = connection.search(searchRequest);
+      List<Entry> groupEntries = ldapConnectionTemplate.search(searchRequest, getEntryMapper());
 
-      int processedGroupCnt = 0;
 
-      while (searchCursor.next()) {
+      for (Entry groupEntry : groupEntries) {
 
-        if (processedGroupCnt >= SAMPLE_RESULT_SIZE) {
-          LOGGER.debug("The maximum number of results for attribute detection has exceeded. Quit  detection.");
-          break;
-        }
+        LOGGER.info("Processing sample entry with dn: [{}]", groupEntry.getDn());
+        groupNameAttrDetector.collect(groupEntry);
+        groupObjectClassDetector.collect(groupEntry);
+        groupMemberAttrDetector.collect(groupEntry);
 
-        Response response = searchCursor.get();
-        // process the SearchResultEntry
-
-        if (response instanceof SearchResultEntry) {
-          Entry resultEntry = ((SearchResultEntry) response).getEntry();
-          LOGGER.info("Processing sample entry with dn: [{}]", resultEntry.getDn());
-
-          groupNameAttrDetector.collect(resultEntry);
-          groupObjectClassDetector.collect(resultEntry);
-          groupMemberAttrDetector.collect(resultEntry);
-
-          processedGroupCnt++;
-        }
       }
 
       ambariLdapConfiguration.setValueFor(AmbariLdapConfigKeys.GROUP_NAME_ATTRIBUTE, groupNameAttrDetector.detect());
@@ -187,26 +153,17 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
     } catch (Exception e) {
 
       LOGGER.error("Ldap operation failed", e);
-    } finally {
-      // housekeeping
-      if (null != searchCursor) {
-        searchCursor.close();
-      }
     }
 
     return ambariLdapConfiguration;
   }
 
-  private SearchRequest assembleUserSearchRequest(AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {
+  private SearchRequest assembleUserSearchRequest(LdapConnectionTemplate ldapConnectionTemplate, AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {
     try {
 
-      SearchRequest req = new SearchRequestImpl();
-      req.setScope(SearchScope.SUBTREE);
-      req.addAttributes("*");
-      req.setTimeLimit(0);
-      req.setBase(new Dn(ambariLdapConfiguration.userSearchBase()));
-      // the filter must be set!
-      req.setFilter(FilterBuilder.present(ambariLdapConfiguration.dnAttribute()).toString());
+      SearchRequest req = ldapConnectionTemplate.newSearchRequest(ambariLdapConfiguration.userSearchBase(),
+        FilterBuilder.present(ambariLdapConfiguration.dnAttribute()).toString(), SearchScope.SUBTREE);
+      req.setSizeLimit(SAMPLE_RESULT_SIZE);
 
       return req;
 
@@ -216,16 +173,12 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
     }
   }
 
-  private SearchRequest assembleGroupSearchRequest(AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {
+  private SearchRequest assembleGroupSearchRequest(LdapConnectionTemplate ldapConnectionTemplate, AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {
     try {
 
-      SearchRequest req = new SearchRequestImpl();
-      req.setScope(SearchScope.SUBTREE);
-      req.addAttributes("*");
-      req.setTimeLimit(0);
-      req.setBase(new Dn(ambariLdapConfiguration.groupSearchBase()));
-      // the filter must be set!
-      req.setFilter(FilterBuilder.present(ambariLdapConfiguration.dnAttribute()).toString());
+      SearchRequest req = ldapConnectionTemplate.newSearchRequest(ambariLdapConfiguration.groupSearchBase(),
+        FilterBuilder.present(ambariLdapConfiguration.dnAttribute()).toString(), SearchScope.SUBTREE);
+      req.setSizeLimit(SAMPLE_RESULT_SIZE);
 
       return req;
 
@@ -236,4 +189,12 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
   }
 
 
+  public EntryMapper<Entry> getEntryMapper() {
+    return new EntryMapper<Entry>() {
+      @Override
+      public Entry map(Entry entry) throws LdapException {
+        return entry;
+      }
+    };
+  }
 }

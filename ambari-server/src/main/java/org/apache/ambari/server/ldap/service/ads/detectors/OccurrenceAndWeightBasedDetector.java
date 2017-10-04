@@ -23,14 +23,14 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
-public abstract class OccurranceAndWeightBasedDetector implements AttributeDetector<Entry> {
+public abstract class OccurrenceAndWeightBasedDetector implements AttributeDetector<Entry> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(OccurranceAndWeightBasedDetector.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(OccurrenceAndWeightBasedDetector.class);
 
   private Map<String, Integer> occurranceMap = Maps.newHashMap();
   private Map<String, Integer> weightsMap = Maps.newHashMap();
 
-  protected Map<String, Integer> occurranceMap() {
+  protected Map<String, Integer> occurrenceMap() {
     return occurranceMap;
   }
 
@@ -46,7 +46,7 @@ public abstract class OccurranceAndWeightBasedDetector implements AttributeDetec
     LOGGER.info("Calculating the most probable attribute/value ...");
     Map.Entry<String, Integer> selectedEntry = null;
 
-    for (Map.Entry<String, Integer> entry : occurranceMap().entrySet()) {
+    for (Map.Entry<String, Integer> entry : occurrenceMap().entrySet()) {
       if (selectedEntry == null) {
 
         selectedEntry = entry;
@@ -80,16 +80,16 @@ public abstract class OccurranceAndWeightBasedDetector implements AttributeDetec
   public void collect(Entry entry) {
     LOGGER.info("Collecting ldap attributes/values form entry with dn: [{}]", entry.getDn());
 
-    for (String attributeValue : occurranceMap().keySet()) {
+    for (String attributeValue : occurrenceMap().keySet()) {
       if (applies(entry, attributeValue)) {
 
-        Integer cnt = occurranceMap().get(attributeValue).intValue();
+        Integer cnt = occurrenceMap().get(attributeValue).intValue();
         if (weightsMap().containsKey(attributeValue)) {
           cnt = cnt + weightsMap().get(attributeValue);
         } else {
           cnt = cnt + 1;
         }
-        occurranceMap().put(attributeValue, cnt);
+        occurrenceMap().put(attributeValue, cnt);
 
         LOGGER.info("Collected potential name attr: {}, count: {}", attributeValue, cnt);
 
