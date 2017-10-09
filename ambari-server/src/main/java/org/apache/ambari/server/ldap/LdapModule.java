@@ -21,11 +21,11 @@ import org.apache.ambari.server.ldap.service.AmbariLdapConfigurationProvider;
 import org.apache.ambari.server.ldap.service.AmbariLdapFacade;
 import org.apache.ambari.server.ldap.service.LdapAttributeDetectionService;
 import org.apache.ambari.server.ldap.service.LdapConfigurationService;
-import org.apache.ambari.server.ldap.service.LdapConnectionTemplateProvider;
+import org.apache.ambari.server.ldap.service.LdapConnectionConfigService;
 import org.apache.ambari.server.ldap.service.LdapFacade;
 import org.apache.ambari.server.ldap.service.ads.DefaultLdapAttributeDetectionService;
 import org.apache.ambari.server.ldap.service.ads.DefaultLdapConfigurationService;
-import org.apache.directory.ldap.client.template.LdapConnectionTemplate;
+import org.apache.ambari.server.ldap.service.ads.detectors.DefaultLdapConnectionConfigService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
@@ -40,12 +40,10 @@ public class LdapModule extends AbstractModule {
     bind(LdapFacade.class).to(AmbariLdapFacade.class);
     bind(LdapConfigurationService.class).to(DefaultLdapConfigurationService.class);
     bind(LdapAttributeDetectionService.class).to(DefaultLdapAttributeDetectionService.class);
+    bind(LdapConnectionConfigService.class).to(DefaultLdapConnectionConfigService.class);
 
     // this binding requires the JPA module!
     bind(AmbariLdapConfiguration.class).toProvider(AmbariLdapConfigurationProvider.class);
-
-    // bind to the provider implementation (let GUICE deal with instantiating 3rd party instances)
-    bind(LdapConnectionTemplate.class).toProvider(LdapConnectionTemplateProvider.class);
 
     install(new FactoryModuleBuilder().build(AmbariLdapConfigurationFactory.class));
   }

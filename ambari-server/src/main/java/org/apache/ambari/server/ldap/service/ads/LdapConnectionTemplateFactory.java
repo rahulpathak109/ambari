@@ -18,7 +18,10 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
+import org.apache.ambari.server.events.AmbariLdapConfigChangedEvent;
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
+import org.apache.ambari.server.ldap.service.AmbariLdapException;
+import org.apache.ambari.server.ldap.service.LdapConnectionConfigService;
 import org.apache.directory.ldap.client.api.DefaultLdapConnectionFactory;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapConnectionFactory;
@@ -27,6 +30,8 @@ import org.apache.directory.ldap.client.api.ValidatingPoolableLdapConnectionFact
 import org.apache.directory.ldap.client.template.LdapConnectionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.eventbus.Subscribe;
 
 /**
  * Factory for creating LdapConnectionTemplate instances.
@@ -37,8 +42,17 @@ public class LdapConnectionTemplateFactory {
 
   private static final Logger LOG = LoggerFactory.getLogger(LdapConnectionTemplateFactory.class);
 
+  // Inject the persisted configuration (when available) check the provider implementation for details.
   @Inject
-  private Provider<LdapConnectionTemplate> ldapConnectionTemplate;
+  private Provider<AmbariLdapConfiguration> ambariLdapConfigurationProvider;
+
+
+  @Inject
+  private LdapConnectionConfigService ldapConnectionConfigService;
+
+  // cached instance that only changes when the underlying configuration changes.
+  private LdapConnectionTemplate ldapConnectionTemplateInstance;
+
 
   @Inject
   public LdapConnectionTemplateFactory() {
@@ -50,11 +64,11 @@ public class LdapConnectionTemplateFactory {
    * @param ambariLdapConfiguration ambari ldap configuration instance
    * @return an instance of LdapConnectionTemplate
    */
-  public LdapConnectionTemplate create(AmbariLdapConfiguration ambariLdapConfiguration) {
+  public LdapConnectionTemplate create(AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {
     LOG.info("Constructing new instance based on the provided ambari ldap configuration: {}", ambariLdapConfiguration);
 
     // create the connection config
-    LdapConnectionConfig ldapConnectionConfig = getLdapConnectionConfig(ambariLdapConfiguration);
+    LdapConnectionConfig ldapConnectionConfig = ldapConnectionConfigService.createLdapConnectionConfig(ambariLdapConfiguration);
 
     // create the connection factory
     LdapConnectionFactory ldapConnectionFactory = new DefaultLdapConnectionFactory(ldapConnectionConfig);
@@ -69,26 +83,28 @@ public class LdapConnectionTemplateFactory {
 
   }
 
-  public LdapConnectionTemplate load() {
-    // the construction logic is implemented in the provider class
-    return ldapConnectionTemplate.get();
+  /**
+   * Loads the persisted LDAP configuration.
+   *
+   * @return theh persisted
+   */
+  public LdapConnectionTemplate load() throws AmbariLdapException {
+
+    if (null == ldapConnectionTemplateInstance) {
+      ldapConnectionTemplateInstance = create(ambariLdapConfigurationProvider.get());
+    }
+    return ldapConnectionTemplateInstance;
   }
 
-
-  private LdapConnectionConfig getLdapConnectionConfig(AmbariLdapConfiguration ambariLdapConfiguration) {
-
-    LdapConnectionConfig config = new LdapConnectionConfig();
-    config.setLdapHost(ambariLdapConfiguration.serverHost());
-    config.setLdapPort(ambariLdapConfiguration.serverPort());
-    config.setName(ambariLdapConfiguration.bindDn());
-    config.setCredentials(ambariLdapConfiguration.bindPassword());
-
-    // todo set the other required properties here, eg.: trustmanager
-    return config;
-  }
-
-  private LdapConnectionFactory getLdapConnectionFactory(AmbariLdapConfiguration ambariLdapConfiguration) {
-    return new DefaultLdapConnectionFactory(getLdapConnectionConfig(ambariLdapConfiguration));
+  /**
+   * The returned connection template instance is recreated whenever the ambari ldap configuration changes
+   *
+   * @param event
+   * @throws AmbariLdapException
+   */
+  @Subscribe
+  public void onConfigChange(AmbariLdapConfigChangedEvent event) throws AmbariLdapException {
+    ldapConnectionTemplateInstance = create(ambariLdapConfigurationProvider.get());
   }
 
 

@@ -73,7 +73,7 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
   }
 
   @Override
-  public AmbariLdapConfiguration detectLdapUserAttributes(AmbariLdapConfiguration ambariLdapConfiguration) {
+  public AmbariLdapConfiguration detectLdapUserAttributes(AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {
     LOGGER.info("Detecting LDAP user attributes ...");
     LdapConnectionTemplate ldapConnectionTemplate = ldapConnectionTemplateFactory.create(ambariLdapConfiguration);
 
@@ -116,7 +116,7 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
 
 
   @Override
-  public AmbariLdapConfiguration detectLdapGroupAttributes(AmbariLdapConfiguration ambariLdapConfiguration) {
+  public AmbariLdapConfiguration detectLdapGroupAttributes(AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {
     LOGGER.info("Detecting LDAP group attributes ...");
 
     // perform a search using the user search base

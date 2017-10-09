@@ -27,7 +27,7 @@ public interface LdapAttributeDetectionService {
    * @param ambariLdapConfiguration configuration instance holding connection details
    * @return the configuration decorated with user related attributes
    */
-  AmbariLdapConfiguration detectLdapUserAttributes(AmbariLdapConfiguration ambariLdapConfiguration);
+  AmbariLdapConfiguration detectLdapUserAttributes(AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException;
 
   /**
    * Decorates the passed in configuration with the detected ldap group attribute values
@@ -35,6 +35,6 @@ public interface LdapAttributeDetectionService {
    * @param ambariLdapConfiguration configuration instance holding connection details
    * @return the configuration decorated with group related attributes
    */
-  AmbariLdapConfiguration detectLdapGroupAttributes(AmbariLdapConfiguration ambariLdapConfiguration);
+  AmbariLdapConfiguration detectLdapGroupAttributes(AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException;
 }
 

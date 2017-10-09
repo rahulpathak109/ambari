@@ -21,6 +21,7 @@ import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
 import org.apache.ambari.server.ldap.domain.TestAmbariAmbariLdapConfigurationFactory;
 import org.apache.ambari.server.ldap.service.LdapConfigurationService;
 import org.apache.ambari.server.ldap.service.LdapFacade;
+import org.apache.ambari.server.ldap.service.ads.LdapConnectionTemplateFactory;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
@@ -130,14 +131,41 @@ public class LdapModuleFunctionalTest {
     ldapPropsMap.put(AmbariLdapConfigKeys.SERVER_PORT.key(), "389");
     ldapPropsMap.put(AmbariLdapConfigKeys.BIND_DN.key(), "cn=read-only-admin,dc=example,dc=com");
     ldapPropsMap.put(AmbariLdapConfigKeys.BIND_PASSWORD.key(), "password");
+    ldapPropsMap.put(AmbariLdapConfigKeys.USE_SSL.key(), "true");
 
     ldapPropsMap.put(AmbariLdapConfigKeys.USER_OBJECT_CLASS.key(), SchemaConstants.PERSON_OC);
     ldapPropsMap.put(AmbariLdapConfigKeys.USER_NAME_ATTRIBUTE.key(), SchemaConstants.UID_AT);
     ldapPropsMap.put(AmbariLdapConfigKeys.USER_SEARCH_BASE.key(), "dc=example,dc=com");
     ldapPropsMap.put(AmbariLdapConfigKeys.DN_ATTRIBUTE.key(), SchemaConstants.UID_AT);
+    ldapPropsMap.put(AmbariLdapConfigKeys.TRUST_STORE.key(), "custom");
+    ldapPropsMap.put(AmbariLdapConfigKeys.TRUST_STORE_TYPE.key(), "JKS");
+    ldapPropsMap.put(AmbariLdapConfigKeys.TRUST_STORE_PATH.key(), "/Users/lpuskas/my_truststore/KeyStore.jks");
+    ldapPropsMap.put(AmbariLdapConfigKeys.TRUST_STORE_PASSWORD.key(), "lofasz");
 
 
     return ldapPropsMap;
   }
 
+
+  @Test
+  public void testShouldCustomTrustManagersBeSetForLdapConnection() throws Exception {
+    // GIVEN
+    AmbariLdapConfiguration ambariLdapConfiguration = ldapConfigurationFactory.createLdapConfiguration(getProps());
+
+    LdapFacade ldapFacade = injector.getInstance(LdapFacade.class);
+
+    LdapConnectionTemplateFactory lctFactory = injector.getInstance(LdapConnectionTemplateFactory.class);
+
+    LdapConnectionTemplate template1 = lctFactory.load();
+    LdapConnectionTemplate template2 = lctFactory.create(ambariLdapConfiguration);
+
+
+    // WHEN
+    ldapFacade.checkConnection(ambariLdapConfiguration);
+
+    ldapFacade.detectAttributes(ambariLdapConfiguration);
+
+    // THEN
+    // no exceptions thrown
+  }
 }

@@ -28,7 +28,6 @@ import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
-import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -117,7 +116,6 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
 
   /**
    * Checks whether the provided group related settings are correct.
-   * The algorithm implemented in this method per
    *
    * @param userDn                  a user DN to check
    * @param ambariLdapConfiguration the available LDAP configuration to be validated
@@ -137,18 +135,15 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
       ).toString();
 
       LOGGER.info("Searching for the groups the user dn: {} is member of using the search filter: {}", userDn, filter);
+      LdapConnectionTemplate ldapConnectionTemplate = ldapConnectionTemplateFactory.create(ambariLdapConfiguration);
 
       // assemble a search request
-      SearchRequest searchRequest = new SearchRequestImpl();
-      searchRequest.setFilter(filter);
-      searchRequest.setBase(new Dn(ambariLdapConfiguration.groupSearchBase()));
-      searchRequest.setScope(SearchScope.SUBTREE);
+      SearchRequest searchRequest = ldapConnectionTemplate.newSearchRequest(new Dn(ambariLdapConfiguration.groupSearchBase()), filter, SearchScope.SUBTREE);
       // attributes to be returned
       searchRequest.addAttributes(ambariLdapConfiguration.groupMemberAttribute(), ambariLdapConfiguration.groupNameAttribute());
 
       // perform the search
-      groups = ldapConnectionTemplateFactory.create(ambariLdapConfiguration).search(searchRequest, getGroupNameEntryMapper(ambariLdapConfiguration));
-
+      groups = ldapConnectionTemplate.search(searchRequest, getGroupNameEntryMapper(ambariLdapConfiguration));
 
     } catch (Exception e) {
 
