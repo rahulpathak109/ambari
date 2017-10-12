@@ -33,7 +33,7 @@ public class AmbariLdapFacade implements LdapFacade {
   /**
    * Additional parameters expected to be provided along with the configuration
    */
-  private enum Parameters {
+  protected enum Parameters {
     TEST_USER_NAME("ambari.ldap.test.user.name"),
     TEST_USER_PASSWORD("ambari.ldap.test.user.password");
 
@@ -43,7 +43,7 @@ public class AmbariLdapFacade implements LdapFacade {
       this.parameterKey = parameterKey;
     }
 
-    private String getParameterKey() {
+    public String getParameterKey() {
       return parameterKey;
     }
 
@@ -62,6 +62,7 @@ public class AmbariLdapFacade implements LdapFacade {
   @Override
   public void checkConnection(AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {
     try {
+
       ldapConfigurationService.checkConnection(ambariLdapConfiguration);
       LOGGER.info("Validating LDAP connection related configuration: SUCCESS");
 
@@ -80,12 +81,15 @@ public class AmbariLdapFacade implements LdapFacade {
     LOGGER.info("Detecting LDAP configuration attributes ...");
 
     try {
-
+      LOGGER.info("Detecting user attributes ....");
       // decorate the configuration with detected user attributes
       ambariLdapConfiguration = ldapAttributeDetectionService.detectLdapUserAttributes(ambariLdapConfiguration);
 
+      LOGGER.info("Detecting group attributes ....");
       // decorate the configuration with detected group attributes
       ambariLdapConfiguration = ldapAttributeDetectionService.detectLdapGroupAttributes(ambariLdapConfiguration);
+
+      LOGGER.info("Attribute detection finished.");
       return ambariLdapConfiguration;
 
     } catch (Exception e) {

@@ -150,7 +150,7 @@ public class AmbariConfigurationService extends BaseService {
   @PUT
   @Path("{configurationId}")
   @Produces(MediaType.TEXT_PLAIN)
-  @ApiOperation(value = "Updates ambari configuration resources - Not implemented yet",
+  @ApiOperation(value = "Updates ambari configuration resources ",
     nickname = "AmbariConfigurationService#updateAmbariConfiguration")
   @ApiImplicitParams({
     @ApiImplicitParam(dataType = AMBARI_CONFIGURATION_REQUEST_TYPE, paramType = PARAM_TYPE_BODY),

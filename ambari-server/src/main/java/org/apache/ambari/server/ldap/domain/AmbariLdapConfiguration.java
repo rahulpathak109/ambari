@@ -19,6 +19,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -173,5 +175,25 @@ public class AmbariLdapConfiguration {
   @Override
   public String toString() {
     return configurationMap.toString();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (o == null || getClass() != o.getClass()) return false;
+
+    AmbariLdapConfiguration that = (AmbariLdapConfiguration) o;
+
+    return new EqualsBuilder()
+      .append(configurationMap, that.configurationMap)
+      .isEquals();
+  }
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder(17, 37)
+      .append(configurationMap)
+      .toHashCode();
   }
 }
