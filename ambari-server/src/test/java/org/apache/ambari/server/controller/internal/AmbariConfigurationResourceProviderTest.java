@@ -21,6 +21,8 @@ import org.apache.ambari.server.controller.spi.Predicate;
 import org.apache.ambari.server.controller.spi.Request;
 import org.apache.ambari.server.controller.spi.Resource;
 import org.apache.ambari.server.controller.utilities.PredicateBuilder;
+import org.apache.ambari.server.events.AmbariLdapConfigChangedEvent;
+import org.apache.ambari.server.events.publishers.AmbariEventPublisher;
 import org.apache.ambari.server.orm.dao.AmbariConfigurationDAO;
 import org.apache.ambari.server.orm.entities.AmbariConfigurationEntity;
 import org.apache.ambari.server.orm.entities.ConfigurationBaseEntity;
@@ -52,6 +54,9 @@ public class AmbariConfigurationResourceProviderTest extends EasyMockSupport {
   @Mock
   private AmbariConfigurationDAO ambariConfigurationDAO;
 
+  @Mock
+  private AmbariEventPublisher publisher;
+
   private Capture<AmbariConfigurationEntity> ambariConfigurationEntityCapture;
 
   private Gson gson;
@@ -68,6 +73,7 @@ public class AmbariConfigurationResourceProviderTest extends EasyMockSupport {
   private static final String PK_STRING = String.valueOf(1);
   private static final String VERSION_TAG = "test version";
   private static final String VERSION = "1";
+  private static final String TYPE = "AmbariConfiguration";
 
   @TestSubject
   private AmbariConfigurationResourceProvider ambariConfigurationResourceProvider = new AmbariConfigurationResourceProvider();
@@ -89,6 +95,7 @@ public class AmbariConfigurationResourceProviderTest extends EasyMockSupport {
         .withVersion(VERSION)
         .withVersionTag(VERSION_TAG)
         .withData(DATA_MOCK_STR)
+        .withType(TYPE)
         .build());
 
     // mock the request to return the properties
@@ -96,6 +103,8 @@ public class AmbariConfigurationResourceProviderTest extends EasyMockSupport {
 
     // capture the entity the DAO gets called with
     ambariConfigurationDAO.create(EasyMock.capture(ambariConfigurationEntityCapture));
+    publisher.publish(EasyMock.anyObject(AmbariLdapConfigChangedEvent.class));
+
     replayAll();
 
     // WHEN
@@ -121,6 +130,8 @@ public class AmbariConfigurationResourceProviderTest extends EasyMockSupport {
 
     Capture<Long> pkCapture = Capture.newInstance();
     ambariConfigurationDAO.removeByPK(EasyMock.capture(pkCapture));
+    publisher.publish(EasyMock.anyObject(AmbariLdapConfigChangedEvent.class));
+
     replayAll();
 
     // WHEN
@@ -160,13 +171,16 @@ public class AmbariConfigurationResourceProviderTest extends EasyMockSupport {
       .withId(PK_LONG)
       .withVersion("2")
       .withVersionTag("version-2")
-      .withData(DATA_MOCK_STR).build());
+      .withData(DATA_MOCK_STR)
+      .withType(TYPE)
+      .build());
 
     EasyMock.expect(requestMock.getProperties()).andReturn(resourcePropertiesSet);
 
     AmbariConfigurationEntity persistedEntity = createDummyAmbariConfigurationEntity();
     EasyMock.expect(ambariConfigurationDAO.findByPK(PK_LONG)).andReturn(persistedEntity);
-    ambariConfigurationDAO.create(EasyMock.capture(ambariConfigurationEntityCapture));
+    ambariConfigurationDAO.update(EasyMock.capture(ambariConfigurationEntityCapture));
+    publisher.publish(EasyMock.anyObject(AmbariLdapConfigChangedEvent.class));
 
     replayAll();
 
@@ -207,6 +221,12 @@ public class AmbariConfigurationResourceProviderTest extends EasyMockSupport {
       resourcePropertiesMap.put(AmbariConfigurationResourceProvider.ResourcePropertyId.DATA.getPropertyId(), dataJson);
       return this;
     }
+
+    private PropertiesMapBuilder withType(String type) {
+      resourcePropertiesMap.put(AmbariConfigurationResourceProvider.ResourcePropertyId.TYPE.getPropertyId(), type);
+      return this;
+    }
+
 
     public Map<String, Object> build() {
       return this.resourcePropertiesMap;

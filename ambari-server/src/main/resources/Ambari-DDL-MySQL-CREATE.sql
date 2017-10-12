@@ -118,7 +118,7 @@ CREATE TABLE configuration_base (
 CREATE TABLE ambari_configuration (
   id BIGINT NOT NULL,
   CONSTRAINT PK_ambari_configuration PRIMARY KEY (id),
-  CONSTRAINT FK_ambari_configuration_configuration_base FOREIGN KEY (id) REFERENCES configuration_base (id)
+  CONSTRAINT FK_ambari_conf_conf_base FOREIGN KEY (id) REFERENCES configuration_base (id)
 );
 
 CREATE TABLE serviceconfig (
