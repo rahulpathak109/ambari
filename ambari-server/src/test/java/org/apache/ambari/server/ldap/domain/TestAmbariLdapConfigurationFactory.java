@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * Implementation used for testing purposes only!
  */
-public class TestAmbariAmbariLdapConfigurationFactory implements AmbariLdapConfigurationFactory {
+public class TestAmbariLdapConfigurationFactory implements AmbariLdapConfigurationFactory {
 
   @Override
   public AmbariLdapConfiguration createLdapConfiguration(Map<String, Object> configuration) {

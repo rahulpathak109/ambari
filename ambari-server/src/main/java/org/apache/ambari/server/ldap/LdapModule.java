@@ -25,7 +25,7 @@ import org.apache.ambari.server.ldap.service.LdapConnectionConfigService;
 import org.apache.ambari.server.ldap.service.LdapFacade;
 import org.apache.ambari.server.ldap.service.ads.DefaultLdapAttributeDetectionService;
 import org.apache.ambari.server.ldap.service.ads.DefaultLdapConfigurationService;
-import org.apache.ambari.server.ldap.service.ads.detectors.DefaultLdapConnectionConfigService;
+import org.apache.ambari.server.ldap.service.ads.DefaultLdapConnectionConfigService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;

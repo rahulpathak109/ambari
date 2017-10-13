@@ -36,7 +36,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 /**
- * Provider implementation for LDAP configurations. It needs to be registered in the related GUICE module as a provider
+ * Provider implementation for LDAP configurations.
+ * It needs to be registered in the related GUICE module as a provider.
  * It's responsible for managing LDAP configurations in the application.
  * Whenever requested, this provider returns an AmbariLdapConfiguration which is always in sync with the persisted LDAP
  * configuration resource.
@@ -85,15 +86,15 @@ public class AmbariLdapConfigurationProvider implements Provider<AmbariLdapConfi
     AmbariConfigurationEntity configEntity = null;
 
     LOGGER.info("Loading LDAP configuration ...");
-    if (null != configurationId) {
-
-      LOGGER.debug("Reloading configuration based on the provied id: {}", configurationId);
-      configEntity = ambariConfigurationDAOProvider.get().findByPK(configurationId);
-
-    } else {
+    if (null == configurationId) {
 
       LOGGER.debug("Initial loading of the ldap configuration ...");
       configEntity = ambariConfigurationDAOProvider.get().getLdapConfiguration();
+
+    } else {
+
+      LOGGER.debug("Reloading configuration based on the provied id: {}", configurationId);
+      configEntity = ambariConfigurationDAOProvider.get().findByPK(configurationId);
 
     }
 

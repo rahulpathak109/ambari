@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.apache.ambari.server.ldap.service.ads.detectors;
+package org.apache.ambari.server.ldap.service.ads;
 
 import static javax.net.ssl.TrustManagerFactory.getDefaultAlgorithm;
 

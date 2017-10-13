@@ -18,7 +18,7 @@ import java.util.Map;
 
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfigKeys;
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
-import org.apache.ambari.server.ldap.domain.TestAmbariAmbariLdapConfigurationFactory;
+import org.apache.ambari.server.ldap.domain.TestAmbariLdapConfigurationFactory;
 import org.apache.ambari.server.ldap.service.LdapConfigurationService;
 import org.apache.ambari.server.ldap.service.LdapFacade;
 import org.apache.ambari.server.ldap.service.ads.LdapConnectionTemplateFactory;
@@ -47,7 +47,7 @@ public class LdapModuleFunctionalTest {
 
   private static Injector injector;
   private static Module testModule;
-  private static TestAmbariAmbariLdapConfigurationFactory ldapConfigurationFactory = new TestAmbariAmbariLdapConfigurationFactory();
+  private static TestAmbariLdapConfigurationFactory ldapConfigurationFactory = new TestAmbariLdapConfigurationFactory();
 
   @BeforeClass
   public static void beforeClass() throws Exception {

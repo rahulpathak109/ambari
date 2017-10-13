@@ -18,7 +18,9 @@ import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 
 /**
- * Contract for creating connection configuration instances
+ * Contract for creating connection configuration instances.
+ * Implementers are in charge for implementing any required custom logic based on the ambari configuration properties.
+ * (Eg.: using custom key stores etc...)
  */
 public interface LdapConnectionConfigService {
 

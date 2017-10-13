@@ -20,7 +20,7 @@ import java.util.Set;
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfigKeys;
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfigurationFactory;
-import org.apache.ambari.server.ldap.domain.TestAmbariAmbariLdapConfigurationFactory;
+import org.apache.ambari.server.ldap.domain.TestAmbariLdapConfigurationFactory;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockRule;
@@ -63,7 +63,7 @@ public class AmbariLdapFacadeTest extends EasyMockSupport {
 
   @Before
   public void before() {
-    ambariLdapConfigurationFactory = new TestAmbariAmbariLdapConfigurationFactory();
+    ambariLdapConfigurationFactory = new TestAmbariLdapConfigurationFactory();
     ambariLdapConfiguration = ambariLdapConfigurationFactory.createLdapConfiguration(Maps.newHashMap());
     ambariLdapConfigurationCapture = Capture.newInstance();
 

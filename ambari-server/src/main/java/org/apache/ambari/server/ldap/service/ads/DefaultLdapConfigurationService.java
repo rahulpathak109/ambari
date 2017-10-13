@@ -58,7 +58,7 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
 
   @Override
   public void checkConnection(AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {
-
+    LOGGER.info("Trying to connect to the LDAP server using provided configuration...");
     LdapConnectionTemplate ldapConnectionTemplate = ldapConnectionTemplateFactory.create(ambariLdapConfiguration);
 
     // check if the connection from the connection pool of the template is connected
@@ -73,6 +73,8 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
       LOGGER.error("Could not connect to the LDAP server");
       throw new AmbariLdapException("Could not connect to the LDAP server. Configuration: " + ambariLdapConfiguration);
     }
+
+    LOGGER.info("Successfully conencted to the LDAP.");
 
   }
 
@@ -92,7 +94,7 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
   public String checkUserAttributes(String testUserName, String testPassword, AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {
     String userDn;
     try {
-      LOGGER.info("Checking user attributes for user {} r ...", testUserName);
+      LOGGER.info("Checking user attributes for user [{}] ...", testUserName);
 
       // set up a filter based on the provided attributes
       String filter = FilterBuilder.and(
@@ -100,10 +102,15 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
         FilterBuilder.equal(ambariLdapConfiguration.userNameAttribute(), testUserName))
         .toString();
 
-      LOGGER.info("Searching for the user: {} using the search filter: {}", testUserName, filter);
+      LOGGER.info("Searching for the user: [{}] using the search filter: [{}]", testUserName, filter);
       userDn = ldapConnectionTemplateFactory.create(ambariLdapConfiguration).searchFirst(new Dn(ambariLdapConfiguration.userSearchBase()), filter, SearchScope.SUBTREE, getUserDnNameEntryMapper(ambariLdapConfiguration));
 
-      LOGGER.info("Attribute validation succeeded. Filter: {}", filter);
+      if (null == userDn) {
+        LOGGER.info("Could not find user based on the provided configuration. User attributes are not complete ");
+        throw new AmbariLdapException("User attribute configuration incomplete");
+      }
+      LOGGER.info("Attribute validation succeeded. Filter: [{}]", filter);
+
 
     } catch (Exception e) {
 
@@ -126,7 +133,7 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
   public Set<String> checkGroupAttributes(String userDn, AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {
     List<String> groups = Lists.newArrayList();
     try {
-      LOGGER.info("Checking group attributes for user dn {} ...", userDn);
+      LOGGER.info("Checking group attributes for user dn: [{}] ...", userDn);
 
       // set up a filter based on the provided attributes
       String filter = FilterBuilder.and(
@@ -134,7 +141,7 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
         FilterBuilder.equal(ambariLdapConfiguration.groupMemberAttribute(), userDn)
       ).toString();
 
-      LOGGER.info("Searching for the groups the user dn: {} is member of using the search filter: {}", userDn, filter);
+      LOGGER.info("Searching for the groups the user dn: [{}] is member of using the search filter: [{}]", userDn, filter);
       LdapConnectionTemplate ldapConnectionTemplate = ldapConnectionTemplateFactory.create(ambariLdapConfiguration);
 
       // assemble a search request
@@ -144,6 +151,13 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
 
       // perform the search
       groups = ldapConnectionTemplate.search(searchRequest, getGroupNameEntryMapper(ambariLdapConfiguration));
+
+      if (groups == null || groups.isEmpty()) {
+        LOGGER.info("No groups found for the user dn. Group attributes configuration is incomplete");
+        throw new AmbariLdapException("Group attribute ldap configuration is incomplete");
+      }
+
+      LOGGER.info("Group attribute configuration check succeeded.");
 
     } catch (Exception e) {
 
@@ -156,6 +170,12 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
   }
 
 
+  /**
+   * Entry mapper for handling user search results.
+   *
+   * @param ambariLdapConfiguration ambari ldap configuration values
+   * @return user dn entry mapper instance
+   */
   private EntryMapper<String> getGroupNameEntryMapper(AmbariLdapConfiguration ambariLdapConfiguration) {
 
     EntryMapper<String> entryMapper = new EntryMapper<String>() {
@@ -168,6 +188,12 @@ public class DefaultLdapConfigurationService implements LdapConfigurationService
     return entryMapper;
   }
 
+  /**
+   * Entry mapper for handling group searches.
+   *
+   * @param ambariLdapConfiguration ambari ldap configuration values
+   * @return
+   */
   private EntryMapper<String> getUserDnNameEntryMapper(AmbariLdapConfiguration ambariLdapConfiguration) {
 
     EntryMapper<String> entryMapper = new EntryMapper<String>() {

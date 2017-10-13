@@ -33,7 +33,7 @@ public class AmbariLdapFacade implements LdapFacade {
   /**
    * Additional parameters expected to be provided along with the configuration
    */
-  protected enum Parameters {
+  public enum Parameters {
     TEST_USER_NAME("ambari.ldap.test.user.name"),
     TEST_USER_PASSWORD("ambari.ldap.test.user.password");
 
