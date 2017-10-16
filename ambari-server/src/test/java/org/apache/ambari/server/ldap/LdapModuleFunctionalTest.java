@@ -15,13 +15,16 @@
 package org.apache.ambari.server.ldap;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfigKeys;
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
 import org.apache.ambari.server.ldap.domain.TestAmbariLdapConfigurationFactory;
+import org.apache.ambari.server.ldap.service.AttributeDetector;
 import org.apache.ambari.server.ldap.service.LdapConfigurationService;
 import org.apache.ambari.server.ldap.service.LdapFacade;
 import org.apache.ambari.server.ldap.service.ads.LdapConnectionTemplateFactory;
+import org.apache.ambari.server.ldap.service.ads.detectors.AttributeDetectorFactory;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
@@ -36,6 +39,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -169,5 +173,21 @@ public class LdapModuleFunctionalTest {
 
     // THEN
     // no exceptions thrown
+  }
+
+
+  @Test
+  public void testShouldDetectorsBeBound() throws Exception {
+    // GIVEN
+
+    Set<AttributeDetector> adSet = Sets.newHashSet();
+//    ChainedAttributeDetector ad = injector.getInstance(ChainedAttributeDetector.class);
+
+    AttributeDetectorFactory f = injector.getInstance(AttributeDetectorFactory.class);
+    // WHEN
+    Assert.assertNotNull(f);
+
+    // THEN
+
   }
 }

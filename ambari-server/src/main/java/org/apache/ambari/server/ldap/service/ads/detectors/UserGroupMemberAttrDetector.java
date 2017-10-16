@@ -16,6 +16,7 @@ package org.apache.ambari.server.ldap.service.ads.detectors;
 
 import javax.inject.Inject;
 
+import org.apache.ambari.server.ldap.domain.AmbariLdapConfigKeys;
 import org.apache.directory.api.ldap.model.entry.Entry;
 
 public class UserGroupMemberAttrDetector extends OccurrenceAndWeightBasedDetector {
@@ -54,5 +55,10 @@ public class UserGroupMemberAttrDetector extends OccurrenceAndWeightBasedDetecto
   @Override
   protected boolean applies(Entry entry, String value) {
     return entry.containsAttribute(value);
+  }
+
+  @Override
+  public String detectedProperty() {
+    return AmbariLdapConfigKeys.USER_GROUP_MEMBER_ATTRIBUTE.key();
   }
 }

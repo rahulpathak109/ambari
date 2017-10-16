@@ -14,6 +14,8 @@
 
 package org.apache.ambari.server.ldap.service;
 
+import java.util.Map;
+
 /**
  * Operations for detecting LDAP related settings.
  * The basis for the attribute or value detection is a set of entries returned by a search operation.
@@ -31,9 +33,9 @@ public interface AttributeDetector<T> {
   /**
    * Implements the decision based on which the "best" possible attribute or value is selected.
    *
-   * @return the most probable attribute name or value (based on the logic in the implementer)
+   * @return a map of the form <property-key, detected-value>
    */
-  String detect();
+  Map<String, String> detect();
 
 
 }

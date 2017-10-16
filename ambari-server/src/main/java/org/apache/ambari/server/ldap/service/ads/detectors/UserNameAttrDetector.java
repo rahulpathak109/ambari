@@ -15,11 +15,14 @@
 package org.apache.ambari.server.ldap.service.ads.detectors;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+import org.apache.ambari.server.ldap.domain.AmbariLdapConfigKeys;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class UserNameAttrDetector extends OccurrenceAndWeightBasedDetector {
   private static final Logger LOGGER = LoggerFactory.getLogger(UserNameAttrDetector.class);
 
@@ -58,6 +61,11 @@ public class UserNameAttrDetector extends OccurrenceAndWeightBasedDetector {
   protected boolean applies(Entry entry, String value) {
     LOGGER.info("Checking for attribute  [{}] in entry [{}]", value, entry.getDn());
     return entry.containsAttribute(value);
+  }
+
+  @Override
+  public String detectedProperty() {
+    return AmbariLdapConfigKeys.USER_NAME_ATTRIBUTE.key();
   }
 
 }

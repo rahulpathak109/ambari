@@ -69,4 +69,15 @@ public enum AmbariLdapConfigKeys {
   public String key() {
     return this.propertyName;
   }
+
+  public static AmbariLdapConfigKeys fromKeyStr(String keyStr) {
+    for (AmbariLdapConfigKeys key : values()) {
+      if (key.key().equals(keyStr)) {
+        return key;
+      }
+    }
+
+    throw new IllegalStateException("invalid konfiguration key found!");
+
+  }
 }

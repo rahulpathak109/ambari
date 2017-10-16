@@ -41,9 +41,13 @@ public abstract class OccurrenceAndWeightBasedDetector implements AttributeDetec
 
   protected abstract boolean applies(Entry entry, String value);
 
+  public abstract String detectedProperty();
+
   @Override
-  public String detect() {
+  public Map<String, String> detect() {
     LOGGER.info("Calculating the most probable attribute/value ...");
+    Map<String, String> detectedMap = Maps.newHashMap();
+
     Map.Entry<String, Integer> selectedEntry = null;
 
     for (Map.Entry<String, Integer> entry : occurrenceMap().entrySet()) {
@@ -73,8 +77,10 @@ public abstract class OccurrenceAndWeightBasedDetector implements AttributeDetec
     }
 
     LOGGER.info("Detected attribute or value: [{}]", detectedVal);
-    return detectedVal;
+    detectedMap.put(detectedProperty(), detectedVal);
+    return detectedMap;
   }
+
 
   @Override
   public void collect(Entry entry) {

@@ -15,6 +15,7 @@
 package org.apache.ambari.server.ldap.service.ads;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -22,13 +23,9 @@ import javax.inject.Singleton;
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfigKeys;
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
 import org.apache.ambari.server.ldap.service.AmbariLdapException;
+import org.apache.ambari.server.ldap.service.AttributeDetector;
 import org.apache.ambari.server.ldap.service.LdapAttributeDetectionService;
-import org.apache.ambari.server.ldap.service.ads.detectors.GroupMemberAttrDetector;
-import org.apache.ambari.server.ldap.service.ads.detectors.GroupNameAttrDetector;
-import org.apache.ambari.server.ldap.service.ads.detectors.GroupObjectClassDetector;
-import org.apache.ambari.server.ldap.service.ads.detectors.UserGroupMemberAttrDetector;
-import org.apache.ambari.server.ldap.service.ads.detectors.UserNameAttrDetector;
-import org.apache.ambari.server.ldap.service.ads.detectors.UserObjectClassDetector;
+import org.apache.ambari.server.ldap.service.ads.detectors.AttributeDetectorFactory;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
@@ -47,22 +44,7 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
   private static final int SAMPLE_RESULT_SIZE = 50;
 
   @Inject
-  private UserNameAttrDetector userNameAttrDetector;
-
-  @Inject
-  private UserObjectClassDetector userObjectClassDetector;
-
-  @Inject
-  private UserGroupMemberAttrDetector userGroupMemberAttrDetector;
-
-  @Inject
-  private GroupNameAttrDetector groupNameAttrDetector;
-
-  @Inject
-  private GroupObjectClassDetector groupObjectClassDetector;
-
-  @Inject
-  private GroupMemberAttrDetector groupMemberAttrDetector;
+  private AttributeDetectorFactory attributeDetectorFactory;
 
   @Inject
   private LdapConnectionTemplateFactory ldapConnectionTemplateFactory;
@@ -76,7 +58,7 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
   public AmbariLdapConfiguration detectLdapUserAttributes(AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {
     LOGGER.info("Detecting LDAP user attributes ...");
     LdapConnectionTemplate ldapConnectionTemplate = ldapConnectionTemplateFactory.create(ambariLdapConfiguration);
-
+    AttributeDetector<Entry> userAttributDetector = attributeDetectorFactory.userAttributDetector();
 
     // perform a search using the user search base
     if (Strings.isEmpty(ambariLdapConfiguration.userSearchBase())) {
@@ -92,23 +74,23 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
       List<Entry> entries = ldapConnectionTemplate.search(searchRequest, getEntryMapper());
 
       for (Entry entry : entries) {
-
         LOGGER.info("Processing sample entry with dn: [{}]", entry.getDn());
-
-        userNameAttrDetector.collect(entry);
-        userObjectClassDetector.collect(entry);
-        userGroupMemberAttrDetector.collect(entry);
-
+        userAttributDetector.collect(entry);
       }
 
-      ambariLdapConfiguration.setValueFor(AmbariLdapConfigKeys.USER_NAME_ATTRIBUTE, userNameAttrDetector.detect());
-      ambariLdapConfiguration.setValueFor(AmbariLdapConfigKeys.USER_OBJECT_CLASS, userObjectClassDetector.detect());
-      ambariLdapConfiguration.setValueFor(AmbariLdapConfigKeys.USER_GROUP_MEMBER_ATTRIBUTE, userGroupMemberAttrDetector.detect());
+      // select attributes based on the collected information
+      Map<String, String> detectedUserAttributes = userAttributDetector.detect();
+
+      // setting the attributes into the configuration
+      setDetectedAttributes(ambariLdapConfiguration, detectedUserAttributes);
 
       LOGGER.info("Decorated ambari ldap config : [{}]", ambariLdapConfiguration);
 
     } catch (Exception e) {
+
       LOGGER.error("Ldap operation failed", e);
+      throw new AmbariLdapException(e);
+
     }
 
     return ambariLdapConfiguration;
@@ -126,6 +108,7 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
     }
 
     LdapConnectionTemplate ldapConnectionTemplate = ldapConnectionTemplateFactory.create(ambariLdapConfiguration);
+    AttributeDetector<Entry> groupAttributDetector = attributeDetectorFactory.groupAttributDetector();
 
     try {
 
@@ -134,28 +117,37 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
       // do the search
       List<Entry> groupEntries = ldapConnectionTemplate.search(searchRequest, getEntryMapper());
 
-
       for (Entry groupEntry : groupEntries) {
 
         LOGGER.info("Processing sample entry with dn: [{}]", groupEntry.getDn());
-        groupNameAttrDetector.collect(groupEntry);
-        groupObjectClassDetector.collect(groupEntry);
-        groupMemberAttrDetector.collect(groupEntry);
+        groupAttributDetector.collect(groupEntry);
 
       }
 
-      ambariLdapConfiguration.setValueFor(AmbariLdapConfigKeys.GROUP_NAME_ATTRIBUTE, groupNameAttrDetector.detect());
-      ambariLdapConfiguration.setValueFor(AmbariLdapConfigKeys.GROUP_OBJECT_CLASS, groupObjectClassDetector.detect());
-      ambariLdapConfiguration.setValueFor(AmbariLdapConfigKeys.GROUP_MEMBER_ATTRIBUTE, groupMemberAttrDetector.detect());
+      // select attributes based on the collected information
+      Map<String, String> detectedGroupAttributes = groupAttributDetector.detect();
+
+      // setting the attributes into the configuration
+      setDetectedAttributes(ambariLdapConfiguration, detectedGroupAttributes);
 
       LOGGER.info("Decorated ambari ldap config : [{}]", ambariLdapConfiguration);
 
     } catch (Exception e) {
 
       LOGGER.error("Ldap operation failed", e);
+      throw new AmbariLdapException(e);
+
     }
 
     return ambariLdapConfiguration;
+  }
+
+  private void setDetectedAttributes(AmbariLdapConfiguration ambariLdapConfiguration, Map<String, String> detectedAttributes) {
+    for (Map.Entry<String, String> detecteMapEntry : detectedAttributes.entrySet()) {
+      LOGGER.info("Setting detected configuration value: [{}] - > [{}]", detecteMapEntry.getKey(), detecteMapEntry.getValue());
+      ambariLdapConfiguration.setValueFor(AmbariLdapConfigKeys.fromKeyStr(detecteMapEntry.getKey()), detecteMapEntry.getValue());
+    }
+
   }
 
   private SearchRequest assembleUserSearchRequest(LdapConnectionTemplate ldapConnectionTemplate, AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {

@@ -16,6 +16,7 @@ package org.apache.ambari.server.ldap.service.ads.detectors;
 
 import javax.inject.Inject;
 
+import org.apache.ambari.server.ldap.domain.AmbariLdapConfigKeys;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,5 +61,10 @@ public class GroupNameAttrDetector extends OccurrenceAndWeightBasedDetector {
   @Override
   protected boolean applies(Entry entry, String value) {
     return entry.containsAttribute(value);
+  }
+
+  @Override
+  public String detectedProperty() {
+    return AmbariLdapConfigKeys.GROUP_NAME_ATTRIBUTE.key();
   }
 }

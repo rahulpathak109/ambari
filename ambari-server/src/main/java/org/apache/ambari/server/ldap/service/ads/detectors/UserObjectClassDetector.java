@@ -16,6 +16,7 @@ package org.apache.ambari.server.ldap.service.ads.detectors;
 
 import javax.inject.Inject;
 
+import org.apache.ambari.server.ldap.domain.AmbariLdapConfigKeys;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +60,11 @@ public class UserObjectClassDetector extends OccurrenceAndWeightBasedDetector {
   protected boolean applies(Entry entry, String value) {
     LOGGER.info("Checking for object class [{}] in entry [{}]", value, entry.getDn());
     return entry.hasObjectClass(value);
+  }
+
+  @Override
+  public String detectedProperty() {
+    return AmbariLdapConfigKeys.USER_OBJECT_CLASS.key();
   }
 
 }

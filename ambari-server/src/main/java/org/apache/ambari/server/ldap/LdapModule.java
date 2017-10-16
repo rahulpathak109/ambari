@@ -19,6 +19,7 @@ import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfigurationFactory;
 import org.apache.ambari.server.ldap.service.AmbariLdapConfigurationProvider;
 import org.apache.ambari.server.ldap.service.AmbariLdapFacade;
+import org.apache.ambari.server.ldap.service.AttributeDetector;
 import org.apache.ambari.server.ldap.service.LdapAttributeDetectionService;
 import org.apache.ambari.server.ldap.service.LdapConfigurationService;
 import org.apache.ambari.server.ldap.service.LdapConnectionConfigService;
@@ -26,14 +27,26 @@ import org.apache.ambari.server.ldap.service.LdapFacade;
 import org.apache.ambari.server.ldap.service.ads.DefaultLdapAttributeDetectionService;
 import org.apache.ambari.server.ldap.service.ads.DefaultLdapConfigurationService;
 import org.apache.ambari.server.ldap.service.ads.DefaultLdapConnectionConfigService;
+import org.apache.ambari.server.ldap.service.ads.detectors.AttributeDetectorFactory;
+import org.apache.ambari.server.ldap.service.ads.detectors.GroupMemberAttrDetector;
+import org.apache.ambari.server.ldap.service.ads.detectors.GroupNameAttrDetector;
+import org.apache.ambari.server.ldap.service.ads.detectors.GroupObjectClassDetector;
+import org.apache.ambari.server.ldap.service.ads.detectors.UserGroupMemberAttrDetector;
+import org.apache.ambari.server.ldap.service.ads.detectors.UserNameAttrDetector;
+import org.apache.ambari.server.ldap.service.ads.detectors.UserObjectClassDetector;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import com.google.inject.multibindings.Multibinder;
+import com.google.inject.name.Names;
 
 /**
  * GUICE configuration module for setting up LDAP related infrastructure.
  */
 public class LdapModule extends AbstractModule {
+
+  public static final String USER_ATTRIBUTES_DETECTORS = "UserAttributesDetectors";
+  public static final String GROUP_ATTRIBUTES_DETECTORS = "GroupAttributesDetectors";
 
   @Override
   protected void configure() {
@@ -45,6 +58,25 @@ public class LdapModule extends AbstractModule {
     // this binding requires the JPA module!
     bind(AmbariLdapConfiguration.class).toProvider(AmbariLdapConfigurationProvider.class);
 
+    bind(AttributeDetectorFactory.class);
+
     install(new FactoryModuleBuilder().build(AmbariLdapConfigurationFactory.class));
+
+    // binding the set of user attributes detector
+    Multibinder<AttributeDetector> userAttributeDetectorBinder = Multibinder.newSetBinder(binder(), AttributeDetector.class,
+      Names.named(USER_ATTRIBUTES_DETECTORS));
+    userAttributeDetectorBinder.addBinding().to(UserObjectClassDetector.class);
+    userAttributeDetectorBinder.addBinding().to(UserNameAttrDetector.class);
+    userAttributeDetectorBinder.addBinding().to(UserGroupMemberAttrDetector.class);
+
+
+    // binding the set of group attributes detector
+    Multibinder<AttributeDetector> groupAttributeDetectorBinder = Multibinder.newSetBinder(binder(), AttributeDetector.class,
+      Names.named(GROUP_ATTRIBUTES_DETECTORS));
+    groupAttributeDetectorBinder.addBinding().to(GroupObjectClassDetector.class);
+    groupAttributeDetectorBinder.addBinding().to(GroupNameAttrDetector.class);
+    groupAttributeDetectorBinder.addBinding().to(GroupMemberAttrDetector.class);
+
   }
+
 }
