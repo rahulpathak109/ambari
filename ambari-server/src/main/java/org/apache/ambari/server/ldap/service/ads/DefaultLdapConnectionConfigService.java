@@ -53,20 +53,17 @@ public class DefaultLdapConnectionConfigService implements LdapConnectionConfigS
     config.setCredentials(ambariLdapConfiguration.bindPassword());
     config.setUseSsl(ambariLdapConfiguration.useSSL());
 
-    // todo implement proper validation logic here: identify optional/mandatory settings
-    // todo suggest proper naming
     if ("custom".equals(ambariLdapConfiguration.trustStore())) {
       LOG.info("Using custom trust manager configuration");
       config.setTrustManagers(trustManagers(ambariLdapConfiguration));
     }
-
 
     return config;
   }
 
 
   /**
-   * Configure the trustmanagers to use the custom keystore.
+   * Configure the trust managers to use the custom keystore.
    *
    * @param ambariLdapConfiguration congiguration instance holding current values
    * @return the array of trust managers

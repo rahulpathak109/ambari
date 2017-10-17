@@ -27,11 +27,18 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
+/**
+ * Attribute detector implementation that performs the attribute detection on a configured set of attribute detectors.
+ * (it implements the composite design pattern)
+ */
 @Singleton
 public class ChainedAttributeDetector implements AttributeDetector<Entry> {
 
   private static final Logger LOG = LoggerFactory.getLogger(ChainedAttributeDetector.class);
 
+  /**
+   * The set of detectors this instance delegates to
+   */
   private Set<AttributeDetector> detectors;
 
   @Inject

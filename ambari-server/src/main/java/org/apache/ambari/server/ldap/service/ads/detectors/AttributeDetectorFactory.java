@@ -21,30 +21,56 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.apache.ambari.server.ldap.service.AttributeDetector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * Factory for attribute detector chains.
+ */
 @Singleton
 public class AttributeDetectorFactory {
 
+  private static final Logger LOG = LoggerFactory.getLogger(AttributeDetectorFactory.class);
   private static final String USER_ATTRIBUTES_DETECTORS = "UserAttributesDetectors";
   private static final String GROUP_ATTRIBUTES_DETECTORS = "GroupAttributesDetectors";
 
 
+  /**
+   * The set of user attribute detectors, configured by GUICE (check the relevant guice module implementation)
+   */
   @Inject
   @Named(USER_ATTRIBUTES_DETECTORS)
   private Set<AttributeDetector> userAttributeDetectors;
 
+  /**
+   * The set of group attribute detectors, configured by GUICE (check the relevant guice module implementation)
+   */
   @Inject
   @Named(GROUP_ATTRIBUTES_DETECTORS)
   Set<AttributeDetector> groupAttributeDetectors;
 
+  @Inject
   public AttributeDetectorFactory() {
   }
 
+  /**
+   * Creates a chained attribute detector instance with user attribute detectors
+   *
+   * @return the constructed ChainedAttributeDetector instance
+   */
   public ChainedAttributeDetector userAttributDetector() {
+    LOG.info("Creating instance with user attribute detectors: [{}]", userAttributDetector());
     return new ChainedAttributeDetector(userAttributeDetectors);
   }
 
+  /**
+   * Creates a chained attribute detector instance with user attribute detectors
+   *
+   * @return the constructed ChainedAttributeDetector instance
+   */
+
   public ChainedAttributeDetector groupAttributDetector() {
+    LOG.info("Creating instance with group attribute detectors: [{}]", groupAttributDetector());
     return new ChainedAttributeDetector(groupAttributeDetectors);
   }
 

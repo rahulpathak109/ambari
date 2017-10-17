@@ -58,9 +58,9 @@ public class UserNameAttrDetector extends OccurrenceAndWeightBasedDetector {
   }
 
   @Override
-  protected boolean applies(Entry entry, String value) {
-    LOGGER.info("Checking for attribute  [{}] in entry [{}]", value, entry.getDn());
-    return entry.containsAttribute(value);
+  protected boolean applies(Entry entry, String attribute) {
+    LOGGER.info("Checking for attribute  [{}] in entry [{}]", attribute, entry.getDn());
+    return entry.containsAttribute(attribute);
   }
 
   @Override

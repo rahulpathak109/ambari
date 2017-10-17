@@ -57,9 +57,9 @@ public class UserObjectClassDetector extends OccurrenceAndWeightBasedDetector {
   }
 
   @Override
-  protected boolean applies(Entry entry, String value) {
-    LOGGER.info("Checking for object class [{}] in entry [{}]", value, entry.getDn());
-    return entry.hasObjectClass(value);
+  protected boolean applies(Entry entry, String attribute) {
+    LOGGER.info("Checking for object class [{}] in entry [{}]", attribute, entry.getDn());
+    return entry.hasObjectClass(attribute);
   }
 
   @Override

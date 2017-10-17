@@ -15,12 +15,10 @@
 package org.apache.ambari.server.ldap;
 
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfigKeys;
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
 import org.apache.ambari.server.ldap.domain.TestAmbariLdapConfigurationFactory;
-import org.apache.ambari.server.ldap.service.AttributeDetector;
 import org.apache.ambari.server.ldap.service.LdapConfigurationService;
 import org.apache.ambari.server.ldap.service.LdapFacade;
 import org.apache.ambari.server.ldap.service.ads.LdapConnectionTemplateFactory;
@@ -39,7 +37,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -180,14 +177,11 @@ public class LdapModuleFunctionalTest {
   public void testShouldDetectorsBeBound() throws Exception {
     // GIVEN
 
-    Set<AttributeDetector> adSet = Sets.newHashSet();
-//    ChainedAttributeDetector ad = injector.getInstance(ChainedAttributeDetector.class);
-
-    AttributeDetectorFactory f = injector.getInstance(AttributeDetectorFactory.class);
     // WHEN
-    Assert.assertNotNull(f);
+    AttributeDetectorFactory f = injector.getInstance(AttributeDetectorFactory.class);
 
     // THEN
+    Assert.assertNotNull(f);
 
   }
 }

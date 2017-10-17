@@ -59,8 +59,8 @@ public class GroupNameAttrDetector extends OccurrenceAndWeightBasedDetector {
 
 
   @Override
-  protected boolean applies(Entry entry, String value) {
-    return entry.containsAttribute(value);
+  protected boolean applies(Entry entry, String attribute) {
+    return entry.containsAttribute(attribute);
   }
 
   @Override

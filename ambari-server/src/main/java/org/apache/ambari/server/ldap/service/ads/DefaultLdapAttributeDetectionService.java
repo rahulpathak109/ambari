@@ -37,10 +37,18 @@ import org.apache.directory.ldap.client.template.LdapConnectionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Service implementation that performs user and group attribute detection based on a sample set of entries returned by
+ * an ldap search operation. A accuracy of detected values may depend on the size of the sample result set
+ */
 @Singleton
 public class DefaultLdapAttributeDetectionService implements LdapAttributeDetectionService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLdapAttributeDetectionService.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultLdapAttributeDetectionService.class);
+
+  /**
+   * The maximum size of the entry set the detection is performed on
+   */
   private static final int SAMPLE_RESULT_SIZE = 50;
 
   @Inject
@@ -49,24 +57,24 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
   @Inject
   private LdapConnectionTemplateFactory ldapConnectionTemplateFactory;
 
-
   @Inject
   public DefaultLdapAttributeDetectionService() {
   }
 
   @Override
   public AmbariLdapConfiguration detectLdapUserAttributes(AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {
-    LOGGER.info("Detecting LDAP user attributes ...");
-    LdapConnectionTemplate ldapConnectionTemplate = ldapConnectionTemplateFactory.create(ambariLdapConfiguration);
-    AttributeDetector<Entry> userAttributDetector = attributeDetectorFactory.userAttributDetector();
+    LOG.info("Detecting LDAP user attributes ...");
 
     // perform a search using the user search base
     if (Strings.isEmpty(ambariLdapConfiguration.userSearchBase())) {
-      LOGGER.warn("No user search base provided");
+      LOG.warn("No user search base provided");
       return ambariLdapConfiguration;
     }
 
     try {
+
+      LdapConnectionTemplate ldapConnectionTemplate = ldapConnectionTemplateFactory.create(ambariLdapConfiguration);
+      AttributeDetector<Entry> userAttributeDetector = attributeDetectorFactory.userAttributDetector();
 
       SearchRequest searchRequest = assembleUserSearchRequest(ldapConnectionTemplate, ambariLdapConfiguration);
 
@@ -74,21 +82,21 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
       List<Entry> entries = ldapConnectionTemplate.search(searchRequest, getEntryMapper());
 
       for (Entry entry : entries) {
-        LOGGER.info("Processing sample entry with dn: [{}]", entry.getDn());
-        userAttributDetector.collect(entry);
+        LOG.info("Collecting user attribute information from the sample entry with dn: [{}]", entry.getDn());
+        userAttributeDetector.collect(entry);
       }
 
       // select attributes based on the collected information
-      Map<String, String> detectedUserAttributes = userAttributDetector.detect();
+      Map<String, String> detectedUserAttributes = userAttributeDetector.detect();
 
       // setting the attributes into the configuration
       setDetectedAttributes(ambariLdapConfiguration, detectedUserAttributes);
 
-      LOGGER.info("Decorated ambari ldap config : [{}]", ambariLdapConfiguration);
+      LOG.info("Decorated ambari ldap config : [{}]", ambariLdapConfiguration);
 
     } catch (Exception e) {
 
-      LOGGER.error("Ldap operation failed", e);
+      LOG.error("Ldap operation failed while detecting user attributes", e);
       throw new AmbariLdapException(e);
 
     }
@@ -99,18 +107,18 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
 
   @Override
   public AmbariLdapConfiguration detectLdapGroupAttributes(AmbariLdapConfiguration ambariLdapConfiguration) throws AmbariLdapException {
-    LOGGER.info("Detecting LDAP group attributes ...");
+    LOG.info("Detecting LDAP group attributes ...");
 
     // perform a search using the user search base
     if (Strings.isEmpty(ambariLdapConfiguration.groupSearchBase())) {
-      LOGGER.warn("No group search base provided");
+      LOG.warn("No group search base provided");
       return ambariLdapConfiguration;
     }
 
-    LdapConnectionTemplate ldapConnectionTemplate = ldapConnectionTemplateFactory.create(ambariLdapConfiguration);
-    AttributeDetector<Entry> groupAttributDetector = attributeDetectorFactory.groupAttributDetector();
-
     try {
+
+      LdapConnectionTemplate ldapConnectionTemplate = ldapConnectionTemplateFactory.create(ambariLdapConfiguration);
+      AttributeDetector<Entry> groupAttributeDetector = attributeDetectorFactory.groupAttributDetector();
 
       SearchRequest searchRequest = assembleGroupSearchRequest(ldapConnectionTemplate, ambariLdapConfiguration);
 
@@ -119,22 +127,22 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
 
       for (Entry groupEntry : groupEntries) {
 
-        LOGGER.info("Processing sample entry with dn: [{}]", groupEntry.getDn());
-        groupAttributDetector.collect(groupEntry);
+        LOG.info("Collecting group attribute information from the sample entry with dn: [{}]", groupEntry.getDn());
+        groupAttributeDetector.collect(groupEntry);
 
       }
 
       // select attributes based on the collected information
-      Map<String, String> detectedGroupAttributes = groupAttributDetector.detect();
+      Map<String, String> detectedGroupAttributes = groupAttributeDetector.detect();
 
       // setting the attributes into the configuration
       setDetectedAttributes(ambariLdapConfiguration, detectedGroupAttributes);
 
-      LOGGER.info("Decorated ambari ldap config : [{}]", ambariLdapConfiguration);
+      LOG.info("Decorated ambari ldap config : [{}]", ambariLdapConfiguration);
 
     } catch (Exception e) {
 
-      LOGGER.error("Ldap operation failed", e);
+      LOG.error("Ldap operation failed while detecting group attributes", e);
       throw new AmbariLdapException(e);
 
     }
@@ -143,8 +151,9 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
   }
 
   private void setDetectedAttributes(AmbariLdapConfiguration ambariLdapConfiguration, Map<String, String> detectedAttributes) {
+
     for (Map.Entry<String, String> detecteMapEntry : detectedAttributes.entrySet()) {
-      LOGGER.info("Setting detected configuration value: [{}] - > [{}]", detecteMapEntry.getKey(), detecteMapEntry.getValue());
+      LOG.info("Setting detected configuration value: [{}] - > [{}]", detecteMapEntry.getKey(), detecteMapEntry.getValue());
       ambariLdapConfiguration.setValueFor(AmbariLdapConfigKeys.fromKeyStr(detecteMapEntry.getKey()), detecteMapEntry.getValue());
     }
 
@@ -160,7 +169,7 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
       return req;
 
     } catch (Exception e) {
-      LOGGER.error("Could not assemble ldap search request", e);
+      LOG.error("Could not assemble ldap search request", e);
       throw new AmbariLdapException(e);
     }
   }
@@ -175,11 +184,10 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
       return req;
 
     } catch (Exception e) {
-      LOGGER.error("Could not assemble ldap search request", e);
+      LOG.error("Could not assemble ldap search request", e);
       throw new AmbariLdapException(e);
     }
   }
-
 
   public EntryMapper<Entry> getEntryMapper() {
     return new EntryMapper<Entry>() {

@@ -54,12 +54,12 @@ public class GroupMemberAttrDetector extends OccurrenceAndWeightBasedDetector {
   }
 
   @Override
-  protected boolean applies(Entry entry, String value) {
-    return entry.containsAttribute(value);
+  protected boolean applies(Entry entry, String attribute) {
+    return entry.containsAttribute(attribute);
   }
 
   @Override
   public String detectedProperty() {
-    return AmbariLdapConfigKeys.USER_GROUP_MEMBER_ATTRIBUTE.key();
+    return AmbariLdapConfigKeys.GROUP_MEMBER_ATTRIBUTE.key();
   }
 }

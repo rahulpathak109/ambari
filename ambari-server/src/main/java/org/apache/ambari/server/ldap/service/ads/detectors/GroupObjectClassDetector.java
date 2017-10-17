@@ -62,8 +62,8 @@ public class GroupObjectClassDetector extends OccurrenceAndWeightBasedDetector {
   }
 
   @Override
-  protected boolean applies(Entry entry, String value) {
-    return entry.hasObjectClass(value);
+  protected boolean applies(Entry entry, String attribute) {
+    return entry.hasObjectClass(attribute);
   }
 
   @Override

@@ -23,15 +23,27 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
+/**
+ * Attribute detector implementation that detects attributes considering their count of occurrence in a sample set of entries.
+ * When multiple values are checked these values can be assigned a weight, that represents it's importance.
+ */
 public abstract class OccurrenceAndWeightBasedDetector implements AttributeDetector<Entry> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OccurrenceAndWeightBasedDetector.class);
 
-  private Map<String, Integer> occurranceMap = Maps.newHashMap();
+  /**
+   * A map in which the keys are the attributes that are checked in an entry and the values are the number the key occurs
+   * in the sample entry set.
+   */
+  private Map<String, Integer> occurrenceMap = Maps.newHashMap();
+
+  /**
+   * A map in which the keys are the attributes that are checked in an entry and the values are the weight of the attribute.
+   */
   private Map<String, Integer> weightsMap = Maps.newHashMap();
 
   protected Map<String, Integer> occurrenceMap() {
-    return occurranceMap;
+    return occurrenceMap;
   }
 
   protected Map<String, Integer> weightsMap() {
@@ -39,10 +51,27 @@ public abstract class OccurrenceAndWeightBasedDetector implements AttributeDetec
   }
 
 
-  protected abstract boolean applies(Entry entry, String value);
+  /**
+   * Checks whether the provided atribute is present in the entry.s
+   *
+   * @param entry     the entry being procesed
+   * @param attribute the attribute being detected
+   * @return true if the attribute is present, false otherwise
+   */
+  protected abstract boolean applies(Entry entry, String attribute);
 
+  /**
+   * The configuration key being detected.
+   *
+   * @return the key as a string
+   */
   public abstract String detectedProperty();
 
+  /**
+   * Calculates the attribute value based on the two maps.
+   *
+   * @return a map with a single element, the key is the configuration key, the value is the detected attribute value
+   */
   @Override
   public Map<String, String> detect() {
     LOGGER.info("Calculating the most probable attribute/value ...");
@@ -82,6 +111,11 @@ public abstract class OccurrenceAndWeightBasedDetector implements AttributeDetec
   }
 
 
+  /**
+   * Collects the information about the attribute to be detected from the provided entry.
+   *
+   * @param entry a result entry returned by a search operation
+   */
   @Override
   public void collect(Entry entry) {
     LOGGER.info("Collecting ldap attributes/values form entry with dn: [{}]", entry.getDn());
