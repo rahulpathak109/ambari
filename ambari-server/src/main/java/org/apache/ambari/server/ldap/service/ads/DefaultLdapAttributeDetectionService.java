@@ -118,7 +118,7 @@ public class DefaultLdapAttributeDetectionService implements LdapAttributeDetect
     try {
 
       LdapConnectionTemplate ldapConnectionTemplate = ldapConnectionTemplateFactory.create(ambariLdapConfiguration);
-      AttributeDetector<Entry> groupAttributeDetector = attributeDetectorFactory.groupAttributDetector();
+      AttributeDetector<Entry> groupAttributeDetector = attributeDetectorFactory.groupAttributeDetector();
 
       SearchRequest searchRequest = assembleGroupSearchRequest(ldapConnectionTemplate, ambariLdapConfiguration);
 

@@ -33,21 +33,18 @@ public class AttributeDetectorFactory {
   private static final Logger LOG = LoggerFactory.getLogger(AttributeDetectorFactory.class);
   private static final String USER_ATTRIBUTES_DETECTORS = "UserAttributesDetectors";
   private static final String GROUP_ATTRIBUTES_DETECTORS = "GroupAttributesDetectors";
-
-
-  /**
-   * The set of user attribute detectors, configured by GUICE (check the relevant guice module implementation)
-   */
-  @Inject
-  @Named(USER_ATTRIBUTES_DETECTORS)
-  private Set<AttributeDetector> userAttributeDetectors;
-
   /**
    * The set of group attribute detectors, configured by GUICE (check the relevant guice module implementation)
    */
   @Inject
   @Named(GROUP_ATTRIBUTES_DETECTORS)
   Set<AttributeDetector> groupAttributeDetectors;
+  /**
+   * The set of user attribute detectors, configured by GUICE (check the relevant guice module implementation)
+   */
+  @Inject
+  @Named(USER_ATTRIBUTES_DETECTORS)
+  private Set<AttributeDetector> userAttributeDetectors;
 
   @Inject
   public AttributeDetectorFactory() {
@@ -59,7 +56,7 @@ public class AttributeDetectorFactory {
    * @return the constructed ChainedAttributeDetector instance
    */
   public ChainedAttributeDetector userAttributDetector() {
-    LOG.info("Creating instance with user attribute detectors: [{}]", userAttributDetector());
+    LOG.info("Creating instance with user attribute detectors: [{}]", userAttributeDetectors);
     return new ChainedAttributeDetector(userAttributeDetectors);
   }
 
@@ -69,8 +66,8 @@ public class AttributeDetectorFactory {
    * @return the constructed ChainedAttributeDetector instance
    */
 
-  public ChainedAttributeDetector groupAttributDetector() {
-    LOG.info("Creating instance with group attribute detectors: [{}]", groupAttributDetector());
+  public ChainedAttributeDetector groupAttributeDetector() {
+    LOG.info("Creating instance with group attribute detectors: [{}]", groupAttributeDetectors);
     return new ChainedAttributeDetector(groupAttributeDetectors);
   }
 
