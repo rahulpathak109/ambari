@@ -18,23 +18,21 @@ import java.util.Map;
 
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfigKeys;
 import org.apache.ambari.server.ldap.domain.AmbariLdapConfiguration;
+import org.apache.ambari.server.ldap.domain.AmbariLdapConfigurationFactory;
 import org.apache.ambari.server.ldap.domain.TestAmbariLdapConfigurationFactory;
-import org.apache.ambari.server.ldap.service.LdapConfigurationService;
-import org.apache.ambari.server.ldap.service.LdapFacade;
 import org.apache.ambari.server.ldap.service.ads.LdapConnectionTemplateFactory;
 import org.apache.ambari.server.ldap.service.ads.detectors.AttributeDetectorFactory;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
-import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.template.ConnectionCallback;
 import org.apache.directory.ldap.client.template.LdapConnectionTemplate;
-import org.apache.directory.ldap.client.template.exception.PasswordException;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.google.inject.AbstractModule;
@@ -43,47 +41,61 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 
+/**
+ * Test for the GUICE LdapModule setup
+ *
+ * - checks the module's bindings (can the GUICE context be created properely)
+ * - checks for specific instances in the GUICE context (re they constructed properly, what is the instance' scope)
+ *
+ * It's named functional test as it creates a GUICE context. ("Real" unit tests only mock a class' collaborators, and
+ * are more lightweight)
+ *
+ * By default the test is ignored, as it connects to external LDAP instances, thus in different environments may fail
+ */
 @Ignore
 public class LdapModuleFunctionalTest {
 
+  private static final Logger LOG = LoggerFactory.getLogger(LdapModuleFunctionalTest.class);
   private static Injector injector;
-  private static Module testModule;
-  private static TestAmbariLdapConfigurationFactory ldapConfigurationFactory = new TestAmbariLdapConfigurationFactory();
+
 
   @BeforeClass
   public static void beforeClass() throws Exception {
 
     // overriding bindings for testing purposes
-    testModule = Modules.override(new LdapModule()).with(new AbstractModule() {
+    Module testModule = Modules.override(new LdapModule()).with(new AbstractModule() {
       @Override
       protected void configure() {
         // override the configuration instance binding not to access the database
-        bind(AmbariLdapConfiguration.class).toInstance(ldapConfigurationFactory.createLdapConfiguration(getProps()));
+        bind(AmbariLdapConfiguration.class).toInstance(new TestAmbariLdapConfigurationFactory().createLdapConfiguration(getADProps()));
       }
     });
 
     injector = Guice.createInjector(testModule);
   }
 
-  @Test()
-  public void shouldLdapTemplateBeInstantiated() throws LdapInvalidDnException, PasswordException {
+  @Test
+  public void shouldLdapTemplateBeInstantiated() throws Exception {
     // GIVEN
     // the injector is set up
     Assert.assertNotNull(injector);
 
     // WHEN
-    // the ldap connection template is retrieved
-    LdapConnectionTemplate template = injector.getInstance(LdapConnectionTemplate.class);
+    LdapConnectionTemplateFactory ldapConnectionTemplateFactory = injector.getInstance(LdapConnectionTemplateFactory.class);
+    AmbariLdapConfigurationFactory ambariLdapConfigurationFactory = injector.getInstance(AmbariLdapConfigurationFactory.class);
+    AmbariLdapConfiguration ldapConfiguration = ambariLdapConfigurationFactory.createLdapConfiguration(getADProps());
+    LdapConnectionTemplate template = ldapConnectionTemplateFactory.create(ldapConfiguration);
 
     // THEN
     Assert.assertNotNull(template);
-    template.authenticate(new Dn("cn=read-only-admin,dc=example,dc=com"), "password".toCharArray());
+    //template.authenticate(new Dn("cn=read-only-admin,dc=example,dc=com"), "password".toCharArray());
 
     Boolean success = template.execute(new ConnectionCallback<Boolean>() {
       @Override
       public Boolean doWithConnection(LdapConnection connection) throws LdapException {
         connection.unBind();
-        connection.bind(new Dn("cn=read-only-admin,dc=example,dc=com"), "password");
+        connection.bind(ldapConfiguration.bindDn(), ldapConfiguration.bindPassword());
+
         return connection.isConnected() && connection.isAuthenticated();
       }
     });
@@ -93,39 +105,6 @@ public class LdapModuleFunctionalTest {
   }
 
 
-  @Test
-  public void testShouldConnectionCheckSucceedWhenProperConfigurationProvided() throws Exception {
-    // GIVEN
-    AmbariLdapConfiguration ambariLdapConfiguration = ldapConfigurationFactory.createLdapConfiguration(getProps());
-
-    LdapFacade ldapFacade = injector.getInstance(LdapFacade.class);
-
-
-    // WHEN
-    ldapFacade.checkConnection(ambariLdapConfiguration);
-
-    ldapFacade.detectAttributes(ambariLdapConfiguration);
-
-    // THEN
-    // no exceptions thrown
-
-  }
-
-  @Test
-  public void testShouldAttributeDetectionSucceedWhenProperConfigurationProvided() throws Exception {
-    // GIVEN
-    AmbariLdapConfiguration ambariLdapConfiguration = ldapConfigurationFactory.createLdapConfiguration(getProps());
-    LdapConfigurationService ldapConfigurationService = injector.getInstance(LdapConfigurationService.class);
-
-
-    // WHEN
-    ldapConfigurationService.checkUserAttributes("euclid", "", ambariLdapConfiguration);
-
-    // THEN
-    // no exceptions thrown
-
-  }
-
   private static Map<String, Object> getProps() {
     Map<String, Object> ldapPropsMap = Maps.newHashMap();
 
@@ -134,44 +113,27 @@ public class LdapModuleFunctionalTest {
     ldapPropsMap.put(AmbariLdapConfigKeys.SERVER_PORT.key(), "389");
     ldapPropsMap.put(AmbariLdapConfigKeys.BIND_DN.key(), "cn=read-only-admin,dc=example,dc=com");
     ldapPropsMap.put(AmbariLdapConfigKeys.BIND_PASSWORD.key(), "password");
-    ldapPropsMap.put(AmbariLdapConfigKeys.USE_SSL.key(), "true");
+//    ldapPropsMap.put(AmbariLdapConfigKeys.USE_SSL.key(), "true");
 
     ldapPropsMap.put(AmbariLdapConfigKeys.USER_OBJECT_CLASS.key(), SchemaConstants.PERSON_OC);
     ldapPropsMap.put(AmbariLdapConfigKeys.USER_NAME_ATTRIBUTE.key(), SchemaConstants.UID_AT);
     ldapPropsMap.put(AmbariLdapConfigKeys.USER_SEARCH_BASE.key(), "dc=example,dc=com");
     ldapPropsMap.put(AmbariLdapConfigKeys.DN_ATTRIBUTE.key(), SchemaConstants.UID_AT);
-    ldapPropsMap.put(AmbariLdapConfigKeys.TRUST_STORE.key(), "custom");
+//    ldapPropsMap.put(AmbariLdapConfigKeys.TRUST_STORE.key(), "custom");
     ldapPropsMap.put(AmbariLdapConfigKeys.TRUST_STORE_TYPE.key(), "JKS");
-    ldapPropsMap.put(AmbariLdapConfigKeys.TRUST_STORE_PATH.key(), "/Users/lpuskas/my_truststore/KeyStore.jks");
-    ldapPropsMap.put(AmbariLdapConfigKeys.TRUST_STORE_PASSWORD.key(), "lofasz");
+//    ldapPropsMap.put(AmbariLdapConfigKeys.TRUST_STORE_PATH.key(), "/Users/lpuskas/my_truststore/KeyStore.jks");
 
 
     return ldapPropsMap;
   }
 
-
-  @Test
-  public void testShouldCustomTrustManagersBeSetForLdapConnection() throws Exception {
-    // GIVEN
-    AmbariLdapConfiguration ambariLdapConfiguration = ldapConfigurationFactory.createLdapConfiguration(getProps());
-
-    LdapFacade ldapFacade = injector.getInstance(LdapFacade.class);
-
-    LdapConnectionTemplateFactory lctFactory = injector.getInstance(LdapConnectionTemplateFactory.class);
-
-    LdapConnectionTemplate template1 = lctFactory.load();
-    LdapConnectionTemplate template2 = lctFactory.create(ambariLdapConfiguration);
+  private static Map<String, Object> getADProps() {
+    Map<String, Object> ldapPropsMap = Maps.newHashMap();
 
 
-    // WHEN
-    ldapFacade.checkConnection(ambariLdapConfiguration);
 
-    ldapFacade.detectAttributes(ambariLdapConfiguration);
-
-    // THEN
-    // no exceptions thrown
+    return ldapPropsMap;
   }
-
 
   @Test
   public void testShouldDetectorsBeBound() throws Exception {
@@ -182,6 +144,8 @@ public class LdapModuleFunctionalTest {
 
     // THEN
     Assert.assertNotNull(f);
+    LOG.info(f.groupAttributeDetector().toString());
+    LOG.info(f.userAttributDetector().toString());
 
   }
 }

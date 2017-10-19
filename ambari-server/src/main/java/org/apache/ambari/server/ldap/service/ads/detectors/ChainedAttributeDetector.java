@@ -39,7 +39,7 @@ public class ChainedAttributeDetector implements AttributeDetector<Entry> {
   /**
    * The set of detectors this instance delegates to
    */
-  private Set<AttributeDetector> detectors;
+  private final Set<AttributeDetector> detectors;
 
   @Inject
   public ChainedAttributeDetector(Set<AttributeDetector> detectors) {
@@ -62,5 +62,12 @@ public class ChainedAttributeDetector implements AttributeDetector<Entry> {
       detectedAttributes.putAll(detector.detect());
     }
     return detectedAttributes;
+  }
+
+  @Override
+  public String toString() {
+    return "ChainedAttributeDetector{" +
+      "detectors=" + detectors +
+      '}';
   }
 }

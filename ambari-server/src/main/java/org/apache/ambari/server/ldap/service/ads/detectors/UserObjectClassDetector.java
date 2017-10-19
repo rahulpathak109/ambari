@@ -53,7 +53,6 @@ public class UserObjectClassDetector extends OccurrenceAndWeightBasedDetector {
       occurrenceMap().put(ocVal.ocVal(), 0);
       weightsMap().put(ocVal.ocVal(), ocVal.weight());
     }
-
   }
 
   @Override

@@ -21,7 +21,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 
 public class GroupMemberAttrDetector extends OccurrenceAndWeightBasedDetector {
 
-  private enum GroupMemberAttr {
+  enum GroupMemberAttr {
 
     MEMBER("member", 1),
     MEMBER_UID("memberUid", 1),
